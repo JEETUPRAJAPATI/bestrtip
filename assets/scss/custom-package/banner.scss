@@ -1,0 +1,332 @@
+.customize-page-content{
+    position: relative;
+    background-color: #fff;
+    &::before{
+        left: 0;
+        position: absolute;
+        right: 0;
+        height: 404px;
+        content: '';
+        top: 0;
+        background-color: #d63041;
+    }
+    &.group-tour{
+        &::before{
+            height: 316px;
+        }
+        .main-banner-section{
+            height: 316px;
+            @include breakpoint(tablet){
+                height: auto;
+                padding-bottom: 40px;
+            }
+        }
+    }
+    .main-content{
+        max-width: 1440px;
+        padding: 0 40px;
+        margin: 0 auto;
+        display: block;
+        @include breakpoint(tablet){
+            padding: 0 20px;
+        }
+        .left-content{
+            width: calc(100% - 346px);
+            display: inline-block;
+            vertical-align: top;
+            margin-right: 16px;
+            @include breakpoint(tablet){
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+        .right-content{
+            max-width: 325px;
+            width: 100%;
+            position: sticky;
+            z-index: 9;
+            margin-top: 60px;
+            top: 0;
+            display: inline-block;
+            vertical-align: top;
+            @include breakpoint(tablet){
+                max-width: none;
+            }
+            .booking-summary{
+                overflow: hidden;
+                width: 100%;
+                background-color: transparent;
+                .card{
+                    background-color: transparent;
+                    .head{
+                        height: 56px;
+                        background-color: #3e1e66;
+                        width: 100%;
+                        text-align: center;
+                        border-radius: 12px 12px 0 0;
+                        h3{
+                            color: #fff;
+                            @include platypi(500);
+                            font-size: 23px;
+                            margin-bottom: 0;
+                            padding-top: 13px;
+                            margin-top: 0;
+                        }
+                    }
+                    .summary-detail{
+                        background-color: #fff;
+                        border: solid 2px #242222;
+                        border-top: none;
+                        padding: 20px 16px;
+                        &.group-tour{
+                            .single{
+                                display: flex;
+                                justify-content: space-between;
+                                .desc{
+                                    text-align: right;
+                                }
+                                &.full-width{
+                                    display: block;
+                                    button{
+                                        width: 100%;
+                                        height: 48px;
+                                        border: none;
+                                        outline: none;
+                                        background-color: #3e1e66;
+                                        color: #fff;
+                                        font-size: 16px;
+                                        font-weight: 500;
+                                        margin-bottom: 12px;
+                                        span{
+                                            display: inline-block;
+                                            vertical-align: middle;
+                                            &.g-icon{
+                                                padding-right: 7px;
+                                                img{
+                                                    position: relative;
+                                                    top: 1px;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    .note{
+                                        font-size: 14px;
+                                        font-weight: 500;
+                                        color: #159054;
+                                        line-height: 22px;
+                                    }
+                                }
+                            }
+                        }
+                        .single{
+                            display: flex;
+                            margin-bottom: 16px;
+                            justify-content: space-between;
+                            &.full-width{
+                                display: block;
+                            }
+                            .title{
+                                font-size: 14px;
+                                color: #7f7f7f;
+                                font-weight: 400;
+                            }
+                            .desc{
+                                font-size: 18px;
+                                font-weight: 600;
+                                color: #242222;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+.main-banner-section{
+    height: 404px;
+    @include breakpoint(tablet){
+        height: auto;
+        background-color: #d63041;
+        position: relative;
+        left: -20px;
+        padding-left: 20px;
+        width: calc(100% + 40px);
+        padding-right: 20px;
+        padding-bottom: 20px;
+    }
+    .block{
+        max-width: 1440px;
+        margin: 0 auto;
+        position: relative;
+        @include breakpoint(tablet){
+            padding: 40px 0 0 0;
+        }
+        .left-part{
+            width: 100%;
+            display: inline-block;
+            vertical-align: top;
+            @include breakpoint(tablet){
+                padding: 0;
+            }
+            .mega-search{
+                box-shadow: 0 0 21px 0 rgba(0, 0, 0, 0.25);
+                padding: 40px;
+                background-color: #fff;
+                position: relative;
+                width: 100%;
+                height: 196px;
+                border-radius: 17px;
+                margin-top: 60px;
+                width: 100%;
+                @include breakpoint(tablet){
+                    width: 100%;
+                    height: auto;
+                    bottom: 0;
+                    padding: 40px 20px;
+                    margin-top: 0;
+                }
+                .group-radio-selection{
+                    display: flex;
+                    white-space: nowrap;
+                    overflow-x: auto;
+                    .select-tour{
+                        margin-right: 24px;
+                        color: #adadad;
+                        font-size: 14px;
+                        @include montserrat(400);
+                        letter-spacing: 0.61px;
+                        padding-bottom: 5px;
+                        &.selected{
+                            border-bottom: solid 2px $purple;
+                            label{
+                                color: $purple;
+                            }
+                            input[type='radio'] {
+                                accent-color: $purple;
+                            }
+
+                        }
+                        input[type='radio']{
+                            margin: 0;
+                            padding: 0;
+                            margin-right: 2px;
+                            position: relative;
+                            top: 1px;
+                            border-color: #adadad;
+                        }
+                        &:last-child{
+                            margin-right: 0;
+                        }
+                        
+                    }
+                }
+                .group-tour-form{
+                    @include flexbox;
+                    margin-top: 40px;
+                    @include breakpoint(tablet){
+                        display: block;
+                    }
+                    .single{
+                        width: 180px;
+                        margin-right: 16px;
+                        @include breakpoint(tablet){
+                            width: 100%;
+                            margin-right: 0;
+                            height: 49px;
+                            margin-bottom: 16px;
+                        }
+                        select{
+                            width: 100%;
+                            border: none;
+                            outline: none;
+                            border-bottom: solid 1px #f0f0f0;
+                            padding-bottom: 15px;
+                            @include breakpoint(tablet){
+                                width: 100%;
+                                margin-right: 0;
+                                height: 49px;
+                                padding-bottom: 0;
+                                color: #6b6b6b;
+                                font-size: 14px;
+                            }
+                        }
+                        input[type='date']{
+                            width: 100%;
+                            border: none;
+                            outline: none;
+                            border-bottom: solid 1px #f0f0f0;
+                            padding-bottom: 15px;
+                            @include breakpoint(tablet){
+                                width: 100%;
+                                margin-right: 0;
+                                height: 49px;
+                                padding-bottom: 0;
+                                color: #6b6b6b;
+                                font-size: 14px;
+                            }
+                        }
+                        .search{
+                            width: 133px;
+                            height: 49px;
+                            background-color: #3e1e66;
+                            color: #fff;
+                            @include montserrat(500);
+                            font-size: 16px;
+                            position: relative;
+                            top: -14px;
+                            border: none;
+                            cursor: pointer;
+                            @include breakpoint(tablet){
+                                top: 0;
+                                margin-top: 16px;
+                                width: 100%;
+                                border-radius: 5px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .select-rooms{
+            width: 100%;
+            margin-left: 0;
+            margin-right: 0;
+            @include breakpoint(tablet){
+                justify-content: space-between;
+            }
+            .add-room-toggle-btn{
+                padding: 0;
+                margin-right: 12px;
+                max-width: 136px;
+                margin-top: 20px;
+                &:last-child{
+                    margin-right: 0;
+                }
+                label{
+                    color: #fff;
+                    font-size: 16px;
+                    text-transform: uppercase;
+                }
+                .input-group{
+                    max-width: 136px;
+                    button{
+                        background: rgba(0,0,0,0.15);
+                        color: #fff;
+                        margin: 0;
+                        margin-left: 0 !important;
+                        font-size: 18px;
+                    }
+                    input{
+                        background: rgba(0,0,0,0.15);
+                        margin: 0;
+                        border: none;
+                        padding: 0;
+                        color: #fff;
+                        font-size: 16px;
+                        margin-left: 0 !important;
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <title>Package Booking</title>
+    <meta name="description" content="" />
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/img/favicon/favicon.ico" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Platypi:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js"></script>
+
+    <!-- Core CSS -->
+    
+    <link href="assets/css/custom-package.min.css" rel="stylesheet" />
+    
+</head>
+<body>
+<div class="container">
+    <!-- Top Band -->
+    <div class="top-panel">
+        <div class="block">
+            <div class="left-panel">
+                <div class="icon"></div>
+            </div>
+            <div class="right-panel">
+                <ul>
+                    <li><a href="#">List Your Property</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Create Free Account</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- Navigation header -->
+    <div class="header">
+        <div class="block">
+            <header>
+                <div class="logo">
+                    <a href="#">LOGO</a>
+                </div>
+                <div class="nav">
+                    <nav>
+                        <ul>
+                            <li><a href="#"><span class="nav-icon"><img src="/assets/images/nav-item-icon-1.svg" /></span><span>Travel</span></a></li>
+                            <li><a href="#"><span class="nav-icon"><img src="/assets/images/nav-item-icon-1.svg" /></span><span>Hotel</span></a></li>
+                            <li><a href="#"><span class="nav-icon"><img src="/assets/images/nav-item-icon-1.svg" /></span><span>Tour</span></a></li>
+                            <li><a href="#"><span class="nav-icon"><img src="/assets/images/nav-item-icon-1.svg" /></span><span>Blog</span></a></li>
+                            <li class="login-btn"><a href="#"><span class="nav-icon"><img src="/assets/images/login-icon.svg" /></span><span>Login</span></a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </header>
+        </div>
+    </div>
+
+    <div class="customize-page-content group-tour">
+        <div class="main-content">
+          <div class="left-content">
+            <div class="main-banner-section">
+              <div class="block">
+                  <div class="left-part">
+                      <!-- Mega Search Module-->
+                      <div class="mega-search">
+                          <div class="group-radio-selection">
+                              <div class="select-tour selected"><input type="radio" name="tour-type" id="group-tour" checked /> <label for="group-tour">Group Tour</label></div>
+                              <div class="select-tour"><input type="radio" name="tour-type" id="customize" /> <label for="customize">Customize Journey</label></div>
+                              <!-- <div class="select-tour"><input type="radio" name="tour-type" id="hotels" /> <label for="hotels">Hotels</label></div>
+                              <div class="select-tour"><input type="radio" name="tour-type" id="holiday-package" /> <label for="holiday-package">Holiday Package</label></div>
+                              <div class="select-tour"><input type="radio" name="tour-type" id="taxi" /> <label for="taxi">Taxi</label></div>
+                              <div class="select-tour"><input type="radio" name="tour-type" id="adventure" /> <label for="adventure">Adventure</label></div> -->
+                          </div>
+                          <div class="group-tour-form">
+                              <div class="single tour-type">
+                                  <select>
+                                      <option>Tour Type</option>
+                                      <option>Bike Tour</option>
+                                      <option>Road Tour</option>
+                                  </select>
+                              </div>
+                              <div class="single traveling-from">
+                                  <select>
+                                      <option>Travelling From</option>
+                                      <option>Delhi</option>
+                                      <option>Mumbai</option>
+                                  </select>
+                              </div>
+                              <div class="single select-destination">
+                                  <select>
+                                      <option>Destinations</option>
+                                      <option>Leh</option>
+                                      <option>Ladakh</option>
+                                  </select>
+                              </div>
+                              <div class="single calendar">
+                                  <input type="date" id="calendar" name="">
+                              </div>
+                              <div class="single">
+                                  <button class="search">Search</button>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <!-- Add rooming detail -->
+                  <div class="row mb-3 select-rooms" id="package-other-details">
+                  </div>
+              </div>
+            </div>
+            <!-- Inclusion and Exclusion -->
+            <div class="group-search-listing">
+                <h1>Group Tour - Srinagar to Manali</h1>
+                <div class="search-list">
+                    <div class="search-item">
+                        <div class="left-item">
+                            <img src="/assets/images/image-2.jpg" alt="group-tour" />
+                            <div class="band blue">Only 20 slot are available</div>
+                        </div>
+                        <div class="right-item">
+                            <div class="total-days">5 Days | 4 Nights</div>
+                            <h2>Srinagar Ladakh Manali Bike Trip Group Tour - Srinagar to Manali</h2>
+                            <div class="sort-details">
+                                <div class="s-col">Price: <strong>5,321/-</strong></div>
+                                <div class="s-col">Trip Start: <strong>25 May, 2025</strong></div>
+                                <div class="s-col">Total No. of People: <strong>20</strong></div>
+                            </div>
+                            <div class="button">
+                                <a href="#">View details</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="search-item">
+                        <div class="left-item">
+                            <img src="/assets/images/image-2.jpg" alt="group-tour" />
+                            <div class="band red">Only 20 slot are available</div>
+                        </div>
+                        <div class="right-item">
+                            <div class="total-days">5 Days | 4 Nights</div>
+                            <h2>Srinagar Ladakh Manali Bike Trip Group Tour - Srinagar to Manali</h2>
+                            <div class="sort-details">
+                                <div class="s-col">Price: <strong>5,321/-</strong></div>
+                                <div class="s-col">Trip Start: <strong>25 May, 2025</strong></div>
+                                <div class="s-col">Total No. of People: <strong>20</strong></div>
+                            </div>
+                            <div class="button">
+                                <a href="#">View details</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="search-item">
+                        <div class="left-item">
+                            <img src="/assets/images/image-2.jpg" alt="group-tour" />
+                            <div class="band green">Only 20 slot are available</div>
+                        </div>
+                        <div class="right-item">
+                            <div class="total-days">5 Days | 4 Nights</div>
+                            <h2>Srinagar Ladakh Manali Bike Trip Group Tour - Srinagar to Manali</h2>
+                            <div class="sort-details">
+                                <div class="s-col">Price: <strong>5,321/-</strong></div>
+                                <div class="s-col">Trip Start: <strong>25 May, 2025</strong></div>
+                                <div class="s-col">Total No. of People: <strong>20</strong></div>
+                            </div>
+                            <div class="button">
+                                <a href="#">View details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+          <div class="right-content">
+          </div>
+        </div>
+      </div>
+      
+
+
+
+      <div class="footer">
+        <footer>
+            <div class="left-footer">
+                <div class="col-1">
+                    <div class="logo"></div>
+                    <p>Rursus mal suada faci lisis the Lorem that the more ipsolarorit more that add in many ametion consectetur bulum as.</p>
+                    <div class="social-icons">
+                        <a class="#" class="twitter"></a>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <h3>Company</h3>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Terms & Conditions</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Blog</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="right-footer">
+                <h4>Newsletters & Updates</h4>
+                <p>Subscribe to get the latest tech career trends, guidance, and tips in your inbox.</p>
+                <div class="subscribe-news">
+                    <input type="text" placeholder="Email Address" />
+                    <button>Subscribe</button>
+                </div>
+                
+            </div>
+        </footer>
+      </div>
+</div>
+
+
+
+
+<script src="js/new-common-ui.js"></script>
+</body>
+</html>

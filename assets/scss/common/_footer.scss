@@ -1,0 +1,120 @@
+.footer{
+    background-color: #200c39;
+    margin-top: 40px;
+    footer{
+        max-width: 1440px;
+        width: 100%;
+        padding: 40px 24px;
+        margin: 0 auto;
+        @include flexbox;
+        @include justify-content(space-between);
+        @include breakpoint(tablet){
+            display: block;
+        }
+        .left-footer{
+            width: 50%;
+            @include flexbox;
+            @include justify-content(space-between);
+            @include breakpoint(tablet){
+                width: 100%;
+                display: block;
+            }
+            .col-1{
+                width: 50%;
+                padding-right: 25px;
+                @include breakpoint(tablet){
+                    width: 100%;
+                    padding-right: 0;
+                    margin-bottom: 20px;
+                }
+                .logo{
+                    width: 250px;
+                    height: 80px;
+                    background-color: #fff;
+                    margin-bottom: 20px;
+                }
+                p{
+                    @include montserrat(400);
+                    color: #fff;
+                    font-size: 16px;
+                    margin: 0;
+                    line-height: 24px;
+                    max-width: 333px;
+                }
+            }
+            .col-2{
+                width: 50%;
+                padding-left: 25px;
+                @include breakpoint(tablet){
+                    padding-left: 0;
+                    width: 100%;
+                }
+                h3{
+                    margin: 0;
+                    padding: 0;
+                    @include montserrat(600);
+                    color: #f1a026;
+                    margin-bottom: 20px;
+                }
+                ul{
+                    @include list;
+                    li{
+                        display: block;
+                        margin-bottom: 15px;
+                        a{
+                            color: #fff;
+                            text-decoration: none;
+                        }
+                    }
+                }
+            }
+        }
+        .right-footer{
+            width: 50%;
+            @include breakpoint(tablet){
+                display: none;
+            }
+            h4{
+                margin: 0;
+                padding: 0;
+                @include montserrat(600);
+                color: #f1a026;
+                margin-bottom: 10px;
+            }
+            p{
+                @include montserrat(400);
+                color: #fff;
+                font-size: 16px;
+                margin: 0;
+                line-height: 24px;
+                margin-bottom: 20px;
+            }
+            .subscribe-news{
+                input{
+                    height: 46px;
+                    width: 400px;
+                    border: none;
+                    padding: 10px;
+                    font-size: 16px;
+                    color: #3e1e66;
+                    @include montserrat(500);
+                    outline: none;
+                }
+                button{
+                    height: 46px;
+                    width: 200px;
+                    text-align: center;
+                    border: none;
+                    outline: none;
+                    position: relative;
+                    // top: -2px;
+                    background-color: #fff;
+                    font-size: 16px;
+                    color: #8ab5f2;
+                    @include montserrat(500);
+                    cursor: pointer;
+                }
+            }
+        }
+    }
+}

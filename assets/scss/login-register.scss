@@ -1,0 +1,48 @@
+@import 'basics/mixin.scss';
+@import 'basics/header.scss';
+@import 'basics/footer.scss';
+
+
+.login-page-wrapper{
+    width: 100%;
+    background-color: #f8f8f8;
+    color: #000;
+    min-height: 100vh;
+    .block{
+        max-width: 500px;
+        width: 100%;
+        margin: 0 auto;
+        margin-top: 100px;
+    }
+    .login-head{
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: #333;
+    }
+    .logo-area{
+        max-width: 500px;
+        width: 100%;
+        text-align: center;
+        img{
+            width: 200px;
+        }
+    }
+    .login-form{
+        background-color: #fff;
+        max-width: 500px;
+        width: 100%;
+        border-radius: 10px;
+        margin-top: 40px;
+        padding: 30px 50px;
+    }
+    .custom-login-btn{
+        text-align: center;
+        padding-top: 20px;
+        button{
+            width: 150px;
+            height: 53px;
+            line-height: 53px;
+        }
+    }
+}

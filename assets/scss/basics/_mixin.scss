@@ -1,0 +1,151 @@
+@mixin vendor($property,$value){
+	-ms-#{$property}:$value;
+	-moz-#{$property}:$value;
+	-webkit-#{$property}:$value;
+	#{$property}:$value;
+}
+@mixin transform($property...) {
+	@include vendor(transform,$property);
+}
+@mixin box-shadow($shadow...){
+	@include vendor(box-shadow,$shadow);
+}
+@mixin text-shadow($shadow...){
+	@include vendor(text-shadow,$shadow);
+}
+@mixin position($property){
+	position:$property;
+}
+@mixin transition($property){
+	@include vendor(transition,$property);
+}
+
+/* flexbox mixin start*/
+@mixin flexbox(){
+	display:-webkit-box;
+  display:-ms-flexbox;
+  display:flex;
+}
+@mixin align-items($property){
+	-webkit-box-align: $property;
+        -ms-flex-align: $property;
+            align-items: $property;
+}
+@mixin justify-content($property){
+	-webkit-box-pack: $property;
+        -ms-flex-pack: $property;
+            justify-content: $property;
+}
+@mixin flex($property){
+	-webkit-box-flex:$property;
+        -ms-flex:$property;
+            flex:$property;
+}
+@mixin flex-wrap(){
+	-ms-flex-wrap:wrap;
+      flex-wrap:wrap;
+}
+@mixin flex-direction($property){
+	-webkit-box-orient:$property;
+  -webkit-box-direction:$property;
+    -ms-flex-direction:$property;
+        flex-direction:$property;
+}
+
+@mixin flex-flow(){
+	-webkit-box-orient:horizontal;
+	-webkit-box-direction:normal;
+    -ms-flex-flow:row wrap;
+        flex-flow:row wrap;
+}
+@mixin order($property){
+    -ms-flex-order:$property;
+        order:$property;
+}
+@mixin column-count($property){
+	column-count: $property;
+  -webkit-column-count: $property;
+  -moz-column-count: $property;
+}
+@mixin column-gap($property){
+	-webkit-column-gap: $property;
+	-moz-column-gap: $property;
+	column-gap: $property;
+}
+/* flexbox mixin end*/
+
+@mixin list(){
+	list-style:none;
+	list-style-type:none;
+	margin:0;
+	padding:0;
+}
+@mixin sprite-bg(){
+	background: url(/wp-content/themes/intelligent/assets/images/sprite-icn-01.png) no-repeat;
+}
+
+/* media query mixin start */
+@mixin mobile-width(){
+	@media (min-width: #{$mobile-min-width}) and (max-width: #{$tablet-width - 1}){
+		@content;
+	}
+}
+@mixin width-md(){
+	@media (min-width: #{$mobile-md-width}) and (max-width: #{$mobile-lg-width}){
+		@content;
+	}
+}
+
+@mixin mobile-width-large(){
+	@media (min-width: #{$mobile-max-width}) and (max-width: #{$tablet-width}){
+		@content;
+	}
+}
+
+@mixin tablet-width(){
+	@media (min-width: #{$tablet-width}) and (max-width: #{$desktop-width}){
+		@content;
+	}
+}
+
+@mixin tablet-large-width(){
+	@media (max-width: #{$desktop-width}){
+		@content;
+	}
+}
+
+@mixin desktop-width(){
+	@media (min-width: #{$desktop-width}) and (max-width: 1265px){
+		@content;
+	}
+}
+
+@mixin mobile-tablet-width(){
+	@media (max-width: #{$desktop-width - 1}){
+		@content;
+	}
+}
+@mixin responsive-width(){
+	@media (min-width: 900px) and (max-width: 1024px){
+		@content;
+	}
+}
+
+@mixin breakpoint($point) {
+    @if $point == desktop {
+        @media screen and (max-width: 1390px) { @content ; }
+    }
+    @else if $point == small-desktop {
+        @media screen and (max-width: 980px) { @content ; }
+    }
+    /*
+    @else if $point == tablet {
+        @media screen and (max-width: 768px) { @content ; }
+    }*/
+    @else if $point == mobile {
+        @media screen and (max-width: 768px) { @content ; }
+    }
+    @else if $point == micromobile {
+        @media screen and (max-width: 420px) { @content ; }
+    }
+}

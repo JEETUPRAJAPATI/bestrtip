@@ -1,0 +1,267 @@
+/**
+ * WEBSITE: https://NodeAscend.com
+ * TWITTER: https://twitter.com/NodeAscend
+ * FACEBOOK: https://www.facebook.com/NodeAscend
+ * GITHUB: https://github.com/NodeAscend/
+ */
+
+body {
+  background-color: #f8f9fa;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.itinerary-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.itinerary-day {
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+  padding: 15px;
+}
+
+.itinerary-day:hover {
+  transform: translateY(-5px);
+}
+
+.taxi-day:nth-child(odd) {
+  background-color: white;
+}
+
+.itinerary-day:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* Styles for completed day */
+.completed-day {
+  opacity: 0.7;
+}
+
+.completed-day .hotel-image {
+  filter: grayscale(70%);
+}
+
+/* Styles for active day */
+.active-day {
+  border-width: 2px !important;
+  position: relative;
+}
+
+.active-day:before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 50px;
+  background-color: #28a745;
+  border-radius: 5px 0 0 5px;
+}
+
+.day-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.day-date {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.day-info {
+  font-size: 1rem;
+  color: #666;
+}
+
+.hotel-card {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  height: 100%;
+}
+
+.hotel-image {
+  height: 180px;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+
+.hotel-details {
+  padding: 15px;
+}
+
+.activity-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.activity-description {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #555;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 1.5rem;
+  position: relative;
+  display: inline-block;
+}
+
+.section-title:after {
+  content: "";
+  position: absolute;
+  width: 70%;
+  height: 3px;
+  background-color: #007bff;
+  bottom: -8px;
+  left: 0;
+}
+
+/* Star Rating Styles */
+.star-rating {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.star-item {
+  cursor: pointer;
+  color: #ccc;
+}
+
+.star-item.fas {
+  color: #ffc107;
+}
+
+#reviewBtn {
+  transition: all 0.3s ease;
+}
+
+#reviewBtn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Modal Styles */
+.modal-content {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  border-radius: 10px 10px 0 0;
+}
+
+@media (max-width: 767px) {
+  .day-details {
+    margin-bottom: 15px;
+  }
+  .star-rating {
+    gap: 5px;
+  }
+  .star-item {
+    font-size: 1.5rem;
+  }
+}
+/* Additional responsive styles */
+@media (max-width: 767px) {
+  /* Container adjustments */
+  .container {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100%;
+  }
+  /* Day card adjustments */
+  .itinerary-day {
+    padding: 10px 5px;
+  }
+  /* Text size adjustments */
+  .section-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .section-title.fs-5 {
+    font-size: 1rem !important;
+    margin-right: 5px !important;
+  }
+  /* Star rating buttons */
+  .rating-btn {
+    padding: 4px 6px;
+    font-size: 0.8rem;
+  }
+  .d-flex.gap-2 {
+    gap: 5px !important;
+  }
+  /* Day info section */
+  .col-md-6.mt-4.p-5 {
+    padding: 15px !important;
+    margin-top: 0 !important;
+  }
+  .fs-2.fw-bold {
+    font-size: 1.5rem !important;
+  }
+  .fs-3.font-semibold {
+    font-size: 1.2rem !important;
+  }
+  .fs-4.mb-2.font-medium {
+    font-size: 1.1rem !important;
+  }
+  /* Review modal adjustments */
+  .star-item {
+    font-size: 1.5rem !important;
+  }
+  .modal-dialog {
+    margin: 10px;
+  }
+  /* Button adjustments */
+  #reviewBtn {
+    width: 100%;
+    margin: 10px 0;
+  }
+  /* Fix alignment issues */
+  .d-flex.align-items-center {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+  .d-flex.align-items-center .d-flex.gap-2 {
+    margin-top: 10px;
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+/* Extremely small screens */
+@media (max-width: 375px) {
+  .rating-btn {
+    padding: 2px 4px;
+    font-size: 0.7rem;
+  }
+  .fs-2.fw-bold {
+    font-size: 1.25rem !important;
+  }
+  .fs-3.font-semibold {
+    font-size: 1rem !important;
+  }
+  .fs-4.mb-2.font-medium {
+    font-size: 0.9rem !important;
+  }
+  .text-base {
+    font-size: 0.85rem !important;
+  }
+  .star-item {
+    font-size: 1.2rem !important;
+  }
+}
+/*# sourceMappingURL=taxi-itenary.css.map */

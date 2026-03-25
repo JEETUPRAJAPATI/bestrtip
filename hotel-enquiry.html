@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <title>CRM for sales management</title>
+    <meta name="description" content="" />
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="../assets/img/favicon/favicon.ico" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="../assets/vendor/css/core.css" />
+    <link rel="stylesheet" href="../assets/css/style.min.css" />
+    <link rel="stylesheet" href="../assets/vendor/css/theme-default.css" />
+  </head>
+
+  <body>
+    <!-- Layout wrapper -->
+    <div class="layout-wrapper layout-content-navbar">
+      <div class="layout-container">
+        <!-- Menu -->
+
+        <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+          <div class="app-brand demo bg-dark">
+            <a href="index.html" class="app-brand-link">
+              <span class="app-brand-logo demo">
+                <img src="../assets/img/logo.png" alt="logo" />
+              </span>
+            </a>
+          </div>
+
+          <div class="menu-inner-shadow"></div>
+          <ul class="menu-inner py-1 bg-dark pt-3">
+            <!-- Forms -->
+            <li class="menu-item active open">
+                <ul class="menu-sub">
+                    <li class="menu-item">
+                      <a href="hotel-vendor-dashboard.html" class="menu-link">
+                        <div data-i18n="Basic Inputs">Edit Profile</div>
+                      </a>
+                    </li>
+                    <li class="menu-item active">
+                      <a href="hotel-enquiry.html" class="menu-link">
+                        <div data-i18n="Input groups">Enquiry</div>
+                      </a>
+                    </li>
+                    <li class="menu-item">
+                      <a href="hotel-vendor-booking.html" class="menu-link">
+                        <div data-i18n="Input groups">Booking</div>
+                      </a>
+                    </li>
+                    <li class="menu-item">
+                      <a href="hotel-vendor-cancellation.html" class="menu-link">
+                        <div data-i18n="Input groups">Cancellation</div>
+                      </a>
+                    </li>
+                    <li class="menu-item">
+                      <a href="hotel-vendor-billing.html" class="menu-link">
+                        <div data-i18n="Input groups">Billing</div>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </aside>
+        <!-- / Menu -->
+
+        <!-- Layout container -->
+        <div class="layout-page">
+  
+            <!-- Content wrapper -->
+            <div class="content-wrapper">
+              <!-- Content -->
+  
+                <div class="container-xxl flex-grow-1 container-p-y">
+                  <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-5">
+                                <label class="form-label">Search by</label>
+                                <div class="input-group">
+                                    <label class="input-group-text">Options</label>
+                                    <select class="form-select">
+                                    <option selected="">Choose...</option>
+                                    <option>Booking ID</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label">Enter Text</label>
+                                <input class="form-control" type="text" placeholder="Search...">
+                            </div>
+                            <div class="col-md">
+                                <label class="form-label" style="display: block;">&nbsp;</label>
+                                <button type="submit" class="btn btn-primary">Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <h4 class="py-3 mb-4">All Query Summary</h4>
+  
+                <!-- Basic Layout -->
+                <div class="row">
+                    <div class="col-xl">
+                      <div class="card mb-4">
+                        <div class="card-body">
+                          <div class="table-responsive text-nowrap border-light border-solid mb-3">
+                          <table class="table">
+                              <thead>
+                              <tr class="text-nowrap bg-dark align-middle">
+                                  <th class="text-white border-right-white">Query No</th>
+                                  <th class="text-white border-right-white">Booking ID</th>
+                                  <th class="text-white border-right-white">Booking Date</th>
+                                  <th class="text-white border-right-white">Guest Name</th>
+                                  <th class="text-white border-right-white">No of Pax</th>
+                                  <th class="text-white border-right-white">No of Nights</th>
+                                  <th class="text-white border-right-white">Room Type</th>
+                                  <th class="text-white border-right-white">Arrival</th>
+                                  <th class="text-white border-right-white">Departure</th>
+                                  <th class="text-white border-right-white">Actions</th>
+                              </tr>
+                              </thead>
+                              <tbody class="table-border-bottom-0">
+                              <tr>
+                                  <td class="border-right-dark">#001</td>
+                                  <td class="border-right-dark">GL2034</td>
+                                  <td class="border-right-dark">27-05-2024</td>
+                                  <td class="border-right-dark">Praveen Jha</td>
+                                  <td class="border-right-dark">12</td>
+                                  <td class="border-right-dark">7</td>
+                                  <td class="border-right-dark">Double</td>
+                                  <td class="border-right-dark">03/04/2024</td>
+                                  <td class="border-right-dark">08/04/2024</td>
+                                  <td class="border-right-dark">
+                                    <div class="dropdown pos-relative">
+                                        <button type="button" class="btn p-0 dropdown-toggle hide-arrow toggle-options">
+                                          <i class="bx bx-dots-vertical-rounded"><span></span></i>
+                                        </button>
+                                        <div class="dropdown-menu custom-dd-menu">
+                                          <a class="dropdown-item" href="full-information.html"><i class="bx bx-edit-alt me-1"></i> Full Detail</a>
+                                          <a class="dropdown-item" href="javascript:void(0);"><i class="bx bx-trash me-1"></i> Delete</a>
+                                        </div>
+                                    </div>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td class="border-right-dark">#001</td>
+                                  <td class="border-right-dark">GL2034</td>
+                                  <td class="border-right-dark">27-05-2024</td>
+                                  <td class="border-right-dark">Praveen Jha</td>
+                                  <td class="border-right-dark">12</td>
+                                  <td class="border-right-dark">7</td>
+                                  <td class="border-right-dark">Double</td>
+                                  <td class="border-right-dark">03/04/2024</td>
+                                  <td class="border-right-dark">08/04/2024</td>
+                                  <td class="border-right-dark">
+                                    <div class="dropdown pos-relative">
+                                        <button type="button" class="btn p-0 dropdown-toggle hide-arrow toggle-options">
+                                          <i class="bx bx-dots-vertical-rounded"><span></span></i>
+                                        </button>
+                                        <div class="dropdown-menu custom-dd-menu">
+                                          <a class="dropdown-item" href="full-information.html"><i class="bx bx-edit-alt me-1"></i> Full Detail</a>
+                                          <a class="dropdown-item" href="javascript:void(0);"><i class="bx bx-trash me-1"></i> Delete</a>
+                                        </div>
+                                    </div>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td class="border-right-dark">#001</td>
+                                  <td class="border-right-dark">GL2034</td>
+                                  <td class="border-right-dark">27-05-2024</td>
+                                  <td class="border-right-dark">Praveen Jha</td>
+                                  <td class="border-right-dark">12</td>
+                                  <td class="border-right-dark">7</td>
+                                  <td class="border-right-dark">Double</td>
+                                  <td class="border-right-dark">03/04/2024</td>
+                                  <td class="border-right-dark">08/04/2024</td>
+                                  <td class="border-right-dark">
+                                    <div class="dropdown pos-relative">
+                                        <button type="button" class="btn p-0 dropdown-toggle hide-arrow toggle-options">
+                                          <i class="bx bx-dots-vertical-rounded"><span></span></i>
+                                        </button>
+                                        <div class="dropdown-menu custom-dd-menu">
+                                          <a class="dropdown-item" href="full-information.html"><i class="bx bx-edit-alt me-1"></i> Full Detail</a>
+                                          <a class="dropdown-item" href="javascript:void(0);"><i class="bx bx-trash me-1"></i> Delete</a>
+                                        </div>
+                                    </div>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td class="border-right-dark">#001</td>
+                                  <td class="border-right-dark">GL2034</td>
+                                  <td class="border-right-dark">27-05-2024</td>
+                                  <td class="border-right-dark">Praveen Jha</td>
+                                  <td class="border-right-dark">12</td>
+                                  <td class="border-right-dark">7</td>
+                                  <td class="border-right-dark">Double</td>
+                                  <td class="border-right-dark">03/04/2024</td>
+                                  <td class="border-right-dark">08/04/2024</td>
+                                  <td class="border-right-dark">
+                                    <div class="dropdown pos-relative">
+                                        <button type="button" class="btn p-0 dropdown-toggle hide-arrow toggle-options">
+                                          <i class="bx bx-dots-vertical-rounded"><span></span></i>
+                                        </button>
+                                        <div class="dropdown-menu custom-dd-menu">
+                                          <a class="dropdown-item" href="full-information.html"><i class="bx bx-edit-alt me-1"></i> Full Detail</a>
+                                          <a class="dropdown-item" href="javascript:void(0);"><i class="bx bx-trash me-1"></i> Delete</a>
+                                        </div>
+                                    </div>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td class="border-right-dark">#001</td>
+                                  <td class="border-right-dark">GL2034</td>
+                                  <td class="border-right-dark">27-05-2024</td>
+                                  <td class="border-right-dark">Praveen Jha</td>
+                                  <td class="border-right-dark">12</td>
+                                  <td class="border-right-dark">7</td>
+                                  <td class="border-right-dark">Double</td>
+                                  <td class="border-right-dark">03/04/2024</td>
+                                  <td class="border-right-dark">08/04/2024</td>
+                                  <td class="border-right-dark">
+                                    <div class="dropdown pos-relative">
+                                        <button type="button" class="btn p-0 dropdown-toggle hide-arrow toggle-options">
+                                          <i class="bx bx-dots-vertical-rounded"><span></span></i>
+                                        </button>
+                                        <div class="dropdown-menu custom-dd-menu">
+                                          <a class="dropdown-item" href="full-information.html"><i class="bx bx-edit-alt me-1"></i> Full Detail</a>
+                                          <a class="dropdown-item" href="javascript:void(0);"><i class="bx bx-trash me-1"></i> Delete</a>
+                                        </div>
+                                    </div>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td class="border-right-dark">#001</td>
+                                  <td class="border-right-dark">GL2034</td>
+                                  <td class="border-right-dark">27-05-2024</td>
+                                  <td class="border-right-dark">Praveen Jha</td>
+                                  <td class="border-right-dark">12</td>
+                                  <td class="border-right-dark">7</td>
+                                  <td class="border-right-dark">Double</td>
+                                  <td class="border-right-dark">03/04/2024</td>
+                                  <td class="border-right-dark">08/04/2024</td>
+                                  <td class="border-right-dark">
+                                    <div class="dropdown pos-relative">
+                                        <button type="button" class="btn p-0 dropdown-toggle hide-arrow toggle-options">
+                                          <i class="bx bx-dots-vertical-rounded"><span></span></i>
+                                        </button>
+                                        <div class="dropdown-menu custom-dd-menu">
+                                          <a class="dropdown-item" href="full-information.html"><i class="bx bx-edit-alt me-1"></i> Full Detail</a>
+                                          <a class="dropdown-item" href="javascript:void(0);"><i class="bx bx-trash me-1"></i> Delete</a>
+                                        </div>
+                                    </div>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td class="border-right-dark">#001</td>
+                                  <td class="border-right-dark">GL2034</td>
+                                  <td class="border-right-dark">27-05-2024</td>
+                                  <td class="border-right-dark">Praveen Jha</td>
+                                  <td class="border-right-dark">12</td>
+                                  <td class="border-right-dark">7</td>
+                                  <td class="border-right-dark">Double</td>
+                                  <td class="border-right-dark">03/04/2024</td>
+                                  <td class="border-right-dark">08/04/2024</td>
+                                  <td class="border-right-dark">
+                                    <div class="dropdown pos-relative">
+                                        <button type="button" class="btn p-0 dropdown-toggle hide-arrow toggle-options">
+                                          <i class="bx bx-dots-vertical-rounded"><span></span></i>
+                                        </button>
+                                        <div class="dropdown-menu custom-dd-menu">
+                                          <a class="dropdown-item" href="full-information.html"><i class="bx bx-edit-alt me-1"></i> Full Detail</a>
+                                          <a class="dropdown-item" href="javascript:void(0);"><i class="bx bx-trash me-1"></i> Delete</a>
+                                        </div>
+                                    </div>
+                                </td>
+                              </tr>
+                              
+                              </tbody>
+                          </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+              <!-- / Content -->
+            </div>
+        </div>
+      </div>
+    </div>
+    <script src="../assets/js/custom-script.js"></script>
+  </body>
+</html>

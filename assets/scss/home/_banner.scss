@@ -1,0 +1,208 @@
+.main-banner-section{
+    margin-bottom: 60px;
+    height: auto;
+    .block{
+        max-width: 1440px;
+        padding: 52px 40px 0 80px;
+        margin: 0 auto;
+        position: relative;
+        @include breakpoint(tablet){
+            padding: 40px 0 0 0;
+            padding-bottom: 270px;
+        }
+        .left-part{
+            max-width: 657px;
+            padding-right: 40px;
+            width: 100%;
+            display: inline-block;
+            vertical-align: top;
+            @include breakpoint(tablet){
+                padding: 0 20px 40px 20px;
+            }
+            .header-tag{
+                background: #137bdb;
+                padding: 10px 20px;
+                border-radius: 30px;
+                color: #fff;
+                font-size: 14px;
+                @include montserrat(400);
+                text-align: center;
+                display: inline-block;
+            }
+            h1{
+                @include platypi(700);
+                font-size: 66px;
+                letter-spacing: 0.45px;
+                color: #1d1c1f;
+                margin: 0;
+                margin-top: 15px;
+                margin-bottom: 15px;
+                @include breakpoint(tablet){
+                    font-size: 45px;
+                    margin-bottom: 8px;
+                    margin-top: 8px;
+                }
+                span{
+                    color: #ff540a;
+                }
+            }
+            p{
+                margin: 0;
+                font-size: 16px;
+                @include montserrat(400);
+                letter-spacing: 0.61px;
+            }
+            .mega-search{
+                box-shadow: 0 0 21px 0 rgba(0, 0, 0, 0.25);
+                padding: 40px;
+                background-color: #fff;
+                position: absolute;
+                width: 1000px;
+                height: 178px;
+                border-radius: 17px;
+                margin-top: 40px;
+                @include breakpoint(tablet){
+                    width: calc(100% - 40px);
+                    height: auto;
+                    bottom: 0;
+                    padding: 40px 20px;
+                }
+                .group-radio-selection{
+                    display: flex;
+                    white-space: nowrap;
+                    overflow-x: auto;
+                    .select-tour{
+                        margin-right: 24px;
+                        color: #adadad;
+                        font-size: 14px;
+                        @include montserrat(400);
+                        letter-spacing: 0.61px;
+                        padding-bottom: 5px;
+                        &.selected{
+                            border-bottom: solid 2px $purple;
+                            label{
+                                color: $purple;
+                            }
+                            input[type='radio'] {
+                                accent-color: $purple;
+                            }
+
+                        }
+                        input[type='radio']{
+                            margin: 0;
+                            padding: 0;
+                            margin-right: 2px;
+                            position: relative;
+                            top: 1px;
+                            border-color: #adadad;
+                        }
+                        &:last-child{
+                            margin-right: 0;
+                        }
+                        
+                    }
+                }
+                .group-tour-form{
+                    @include flexbox;
+                    margin-top: 40px;
+                    @include breakpoint(tablet){
+                        display: block;
+                    }
+                    .single{
+                        width: 180px;
+                        margin-right: 16px;
+                        @include breakpoint(tablet){
+                            width: 100%;
+                            margin-right: 0;
+                            height: 49px;
+                            margin-bottom: 16px;
+                        }
+                        select{
+                            width: 100%;
+                            border: none;
+                            outline: none;
+                            border-bottom: solid 1px #f0f0f0;
+                            padding-bottom: 15px;
+                            @include breakpoint(tablet){
+                                width: 100%;
+                                margin-right: 0;
+                                height: 49px;
+                                padding-bottom: 0;
+                                color: #6b6b6b;
+                                font-size: 14px;
+                            }
+                        }
+                        input[type='date']{
+                            width: 100%;
+                            border: none;
+                            outline: none;
+                            border-bottom: solid 1px #f0f0f0;
+                            padding-bottom: 15px;
+                            @include breakpoint(tablet){
+                                width: 100%;
+                                margin-right: 0;
+                                height: 49px;
+                                padding-bottom: 0;
+                                color: #6b6b6b;
+                                font-size: 14px;
+                            }
+                        }
+                        .search{
+                            width: 133px;
+                            height: 49px;
+                            background-color: #3e1e66;
+                            color: #fff;
+                            @include montserrat(500);
+                            font-size: 16px;
+                            position: relative;
+                            top: -14px;
+                            border: none;
+                            cursor: pointer;
+                            @include breakpoint(tablet){
+                                top: 0;
+                                margin-top: 16px;
+                                width: 100%;
+                                border-radius: 5px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .right-part{
+            max-width: 622px;
+            width: 100%;
+            display: inline-block;
+            vertical-align: top;
+            @include breakpoint(tablet){
+                width: 100%;
+                max-width: none;
+            }
+            .slider{
+                .slide{
+                    overflow: hidden;
+                    border-radius: 80px 20px 20px 80px;
+                    max-width: 590px;
+                    width: 100%;
+                    @include breakpoint(tablet){
+                        max-width: none;
+                        width: 100%;
+                        border-radius: 0 0 0 0;
+                        height: 408px;
+                    }
+                    figure{
+                        margin: 0;
+                        padding: 0;
+                        font-size: 0;
+                        img{
+                            object-fit: cover;
+                        }
+                    }
+                }
+                .slider-nav{
+                    
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,144 @@
+@import 'basics/mixin.scss';
+@import 'basics/header.scss';
+@import 'basics/footer.scss';
+.pos-relative{
+    position: relative !important;
+}
+.custom-dd-menu{
+    position: absolute;
+    right: 0;
+    display: none;
+    &.display-block{
+        display: block;
+    }
+}
+.custom-table{
+    border: solid 1px #000;
+    width: 100%;
+    font-size: 12px;
+    color: #000;
+    min-width: 740px;
+    .align-center{
+        text-align: center;
+    }
+    td{
+        border: solid 1px #999;
+        padding: 5px;
+    }
+    tr{
+        &.blue-bg{
+            background-color: #696cff;
+            color: #fff;
+        }
+    }
+}
+.bx-dots-vertical-rounded{
+    display: block;
+    width: 5px;
+    height: 18px;
+    position: relative;
+    padding-left: 33px;
+    span{
+        display: inline-block;
+        position: relative;
+        width: 4px;
+        height: 4px;
+        background: #000;
+        border-radius: 10px;
+        top: -12px;
+        &::after, &::before{
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            content: '';
+            background: #000;
+            left: 0;
+            border-radius: 10px;
+            top: 6px;
+        }
+        &::after{
+            top: 12px;
+        }
+    }
+}
+.page-wrapper{
+    width: 100%;
+    background-color: #f8f8f8;
+    color: #000;
+    min-height: 100vh;
+}
+.front-banner{
+    width: 100%;
+    height: 400px;
+    img{
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+    }
+}
+.set-padding-top{
+    padding-top: 3px;
+}
+.dark-col{
+    background-color: #233446 !important;
+    color: #fff !important;
+}
+.add-custom-padding{
+    padding: 6px 15px !important;
+}
+.set-right{
+    display: block;
+    text-align: right;
+    margin-top: 5px;
+}
+.border-lighter{
+    border-color: #d9dee3;
+    &:hover{
+        border-color: #666;
+    }
+}
+h3{
+    font-size: 18px;
+    color: #000;
+    margin: 0;
+    margin-bottom: 25px;
+}
+.front-body-content{
+    .get-quote-btn{
+        width: 100%;
+        margin: 0 auto;
+        margin-top: 30px;
+    }
+    .block{
+        max-width: 1460px;
+        margin: 0 auto;
+        padding: 60px 0;
+        @include flexbox;
+        .card{
+            background: #fff;
+            padding: 30px;
+            min-height: 100px;
+            box-shadow: 0px 1px 1px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .left-part{
+            width: 67%;
+            h1{
+                margin: 0;
+                font-size: 24px;
+                margin-bottom: 15px;
+                font-weight: normal;
+                color: #000;
+            }
+
+        }
+        .right-part{
+            width: 33%;
+            padding-left: 40px;
+            .booking-summary{
+                
+            }
+        }
+    }
+}

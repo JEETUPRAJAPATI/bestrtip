@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <title>CRM for sales management</title>
+    <meta name="description" content="" />
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="../assets/img/favicon/favicon.ico" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="../assets/vendor/css/core.css" />
+    <link rel="stylesheet" href="../assets/css/style.min.css" />
+    <link rel="stylesheet" href="../assets/vendor/css/theme-default.css" />
+    <style type="text/css">
+      .small-font-style{
+        font-style: normal; font-size: 11px; text-transform: none; color: #999;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Layout wrapper -->
+    <div class="layout-wrapper layout-content-navbar">
+      <div class="layout-container">
+        <!-- Menu -->
+
+        <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+          <div class="app-brand demo bg-dark">
+            <a href="index.html" class="app-brand-link">
+              <span class="app-brand-logo demo">
+                <img src="../assets/img/logo.png" alt="logo" />
+              </span>
+            </a>
+          </div>
+
+          <div class="menu-inner-shadow"></div>
+          <ul class="menu-inner py-1 bg-dark pt-3">
+            <!-- Forms -->
+            <li class="menu-item active open">
+              <ul class="menu-sub">
+                <li class="menu-item">
+                  <a href="add-package.html" class="menu-link">
+                    <div data-i18n="Basic Inputs">Add Package</div>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a href="view-package.html" class="menu-link">
+                    <div data-i18n="Basic Inputs">View Package</div>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a href="all-booking-summary.html" class="menu-link">
+                    <div data-i18n="Input groups">All Booking Summary</div>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a href="all-query-summary.html" class="menu-link">
+                    <div data-i18n="Input groups">All Query Summary</div>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a href="all-invoices.html" class="menu-link">
+                    <div data-i18n="Input groups">All Invoices</div>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a href="agent-information.html" class="menu-link">
+                    <div data-i18n="Input groups">Agent Information</div>
+                  </a>
+                </li>
+                <li class="menu-item">
+                    <a href="add-hotel-information.html" class="menu-link">
+                      <div data-i18n="Input groups">Add Hotel Information</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="view-hotel-information.html" class="menu-link">
+                      <div data-i18n="Input groups">View Hotel Information</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="add-vehicle-details.html" class="menu-link">
+                      <div data-i18n="Input groups">Add vehicle details</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="view-vehicle-details.html" class="menu-link">
+                      <div data-i18n="Input groups">View vehicle details</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="add-guide-details.html" class="menu-link">
+                      <div data-i18n="Input groups">Add Guide details</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="view-guide-details.html" class="menu-link">
+                      <div data-i18n="Input groups">View Guide details</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="add-destination.html" class="menu-link">
+                      <div data-i18n="Input groups">Add Destination</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="view-destination.html" class="menu-link">
+                      <div data-i18n="Input groups">View Destination</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="add-category.html" class="menu-link">
+                      <div data-i18n="Input groups">Add Category</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="view-category.html" class="menu-link">
+                      <div data-i18n="Input groups">View Category</div>
+                    </a>
+                </li>
+                <li class="menu-item active">
+                    <a href="add-fixed-package.html" class="menu-link">
+                      <div data-i18n="Input groups">Add Fixed Package</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="view-fixed-package.html" class="menu-link">
+                      <div data-i18n="Input groups">View Fixed Package</div>
+                    </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </aside>
+        <!-- / Menu -->
+
+        <!-- Layout container -->
+        <div class="layout-page">
+  
+            <!-- Content wrapper -->
+            <div class="content-wrapper">
+              <!-- Content -->
+  
+                <div class="container-xxl flex-grow-1 container-p-y">
+                  
+                <h4 class="py-3 mb-4">Add Fixed Package</h4>
+  
+                <!-- Basic Layout -->
+                  <div class="row">
+                    <div class="col-xl">
+                      <div class="card mb-4">
+                        <div class="card-body">
+                          <form>
+                            <div class="row mb-3">
+                              <div class="col-md">
+                                <label class="form-label" for="basic-default-company">Product Name</label>
+                                <input type="text" class="form-control" placeholder="" />
+                              </div>
+                              <div class="col-md">
+                                <label class="form-label" for="basic-default-company">Product Image</label>
+                                <input type="file" class="form-control" />
+                              </div>
+                            </div>
+                            <div class="row mb-3">
+                              <div class="col-md">
+                                <label class="form-label" for="basic-default-company">Product Description</label>
+                                <textarea class="form-control"></textarea>
+                              </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md">
+                                  <label class="form-label" for="basic-default-phone">Tour Start</label>
+                                  <select class="form-select">
+                                    <option>Tour Start From</option>
+                                    <option value="1">Manali</option>
+                                    <option value="2">Shimla</option>
+                                    <option value="3">Leh</option>
+                                    <option value="3">Kargil</option>
+                                    <option value="3">Ladakh</option>
+                                  </select>
+                                </div>
+                                <div class="col-md">
+                                  <label class="form-label" for="basic-default-phone">Tour End</label>
+                                  <select class="form-select">
+                                    <option>Tour End</option>
+                                    <option value="1">Manali</option>
+                                    <option value="2">Shimla</option>
+                                    <option value="3">Leh</option>
+                                    <option value="3">Kargil</option>
+                                    <option value="3">Ladakh</option>
+                                  </select>
+                                </div>
+                              </div>
+                            <div class="row mb-3">
+                              <div class="col-md">
+                                <label class="form-label" for="basic-default-phone">Tour Start Date</label>
+                                <input class="form-control" type="date" value="2021-06-18">
+                              </div>
+                              <div class="col-md">
+                                <label class="form-label" for="basic-default-phone">Tour End Date</label>
+                                <input class="form-control" type="date" value="2021-06-18">
+                              </div>
+                            </div>
+                            <div class="row mb-3">
+                              <div class="col-md">
+                                <label class="form-label" for="basic-default-phone">Website Link</label>
+                                <input type="text" class="form-control phone-mask" placeholder="" />
+                              </div>
+                              <div class="col-md">
+                                <label class="form-label" for="basic-default-phone">PDF Link</label>
+                                <input type="text" class="form-control phone-mask" placeholder="" />
+                              </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md">
+                                  <label class="form-label" for="basic-default-phone">Tour Category</label>
+                                  <select class="form-select">
+                                    <option>Tour Category</option>
+                                    <option value="1">Bike Trip</option>
+                                    <option value="2">Road Trip</option>
+                                    <option value="3">Air Package</option>
+                                  </select>
+                                </div>
+                                <div class="col-md">
+                                  <label class="form-label" for="basic-default-phone">Inventory</label>
+                                  <input type="text" class="form-control phone-mask" placeholder="" />
+                                </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-xl">
+                                <div class="mb-4">
+                                    <div class="table-responsive border-light border-solid mb-3">
+                                    <table class="table">
+                                        <thead>
+                                        <tr class="bg-dark align-middle">
+                                            <th class="text-white border-right-white">Package Price</th>
+                                            <th class="text-white border-right-white">Commission</th>
+                                            <th class="text-white border-right-white">Solo riding on Double Room </th>
+                                            <th class="text-white border-right-white">Double riding  on Double Room</th>
+                                            <th class="text-white border-right-white">Solo riding Single Room</th>
+                                            <th class="text-white border-right-white">Double riding   Single Room</th>
+                                            <th class="text-white border-right-white">3 Rider 2. bike 1 Triple room </th>
+                                            <th class="text-white border-right-white">3 Rider  3 bike 1 Triple room </th>
+                                        </tr>
+                                        </thead>
+                                        <tbody class="table-border-bottom-0">
+                                        <tr>
+                                            <td class="border-right-dark">Price</td>
+                                            <td class="border-right-dark"><input type="text" class="form-control phone-mask" placeholder="0" /></td>
+                                            <td class="border-right-dark"><input type="text" class="form-control phone-mask" placeholder="20000" /></td>
+                                            <td class="border-right-dark"><input type="text" class="form-control phone-mask" placeholder="20000" /></td>
+                                            <td class="border-right-dark"><input type="text" class="form-control phone-mask" placeholder="20000" /></td>
+                                            <td class="border-right-dark"><input type="text" class="form-control phone-mask" placeholder="20000" /></td>
+                                            <td class="border-right-dark"><input type="text" class="form-control phone-mask" placeholder="20000" /></td>
+                                            <td class="border-right-dark"><input type="text" class="form-control phone-mask" placeholder="20000" /></td>
+                                        </tr>
+                                        <tr>
+                                          <td class="border-right-dark">Agent price</td>
+                                          <td class="border-right-dark"><input type="text" class="form-control phone-mask" placeholder="10" /></td>
+                                          <td class="border-right-dark">18000</td>
+                                          <td class="border-right-dark">18000</td>
+                                          <td class="border-right-dark">18000</td>
+                                          <td class="border-right-dark">18000</td>
+                                          <td class="border-right-dark">18000</td>
+                                          <td class="border-right-dark">18000</td>
+                                      </tr>
+                                      <tr>
+                                          <td class="border-right-dark">Special agent price</td>
+                                          <td class="border-right-dark"><input type="text" class="form-control phone-mask" placeholder="20" /></td>
+                                          <td class="border-right-dark">16000</td>
+                                          <td class="border-right-dark">16000</td>
+                                          <td class="border-right-dark">16000</td>
+                                          <td class="border-right-dark">16000</td>
+                                          <td class="border-right-dark">16000</td>
+                                          <td class="border-right-dark">16000</td>
+                                      </tr>
+                                        </tbody>
+                                    </table>
+                                    </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-xl">
+                                <div class="mb-4">
+                                    <div class="table-responsive border-light border-solid mb-3">
+                                    <table class="table">
+                                        <thead>
+                                        <tr class="bg-dark align-middle">
+                                            <th class="text-white border-right-white">Package Price</th>
+                                            <th class="text-white border-right-white">Commission</th>
+                                            <th class="text-white border-right-white">DBL/ TWIN</th>
+                                            <th class="text-white border-right-white">Single sharing</th>
+                                            <th class="text-white border-right-white">Extra bed 18+</th>
+                                            <th class="text-white border-right-white">Child No bed</th>
+                                            <th class="text-white border-right-white">Child with bed</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody class="table-border-bottom-0">
+                                        <tr>
+                                            <td class="border-right-dark">Price</td>
+                                            <td class="border-right-dark"><input type="text" class="form-control phone-mask" placeholder="0" /></td>
+                                            <td class="border-right-dark"><input type="text" class="form-control phone-mask" placeholder="20000" /></td>
+                                            <td class="border-right-dark"><input type="text" class="form-control phone-mask" placeholder="20000" /></td>
+                                            <td class="border-right-dark"><input type="text" class="form-control phone-mask" placeholder="20000" /></td>
+                                            <td class="border-right-dark"><input type="text" class="form-control phone-mask" placeholder="20000" /></td>
+                                            <td class="border-right-dark"><input type="text" class="form-control phone-mask" placeholder="20000" /></td>
+                                        </tr>
+                                        <tr>
+                                          <td class="border-right-dark">Agent price</td>
+                                          <td class="border-right-dark"><input type="text" class="form-control phone-mask" placeholder="10" /></td>
+                                          <td class="border-right-dark">18000</td>
+                                          <td class="border-right-dark">18000</td>
+                                          <td class="border-right-dark">18000</td>
+                                          <td class="border-right-dark">18000</td>
+                                          <td class="border-right-dark">18000</td>
+                                      </tr>
+                                      <tr>
+                                          <td class="border-right-dark">Special agent price</td>
+                                          <td class="border-right-dark"><input type="text" class="form-control phone-mask" placeholder="20" /></td>
+                                          <td class="border-right-dark">16000</td>
+                                          <td class="border-right-dark">16000</td>
+                                          <td class="border-right-dark">16000</td>
+                                          <td class="border-right-dark">16000</td>
+                                          <td class="border-right-dark">16000</td>
+                                      </tr>
+                                        </tbody>
+                                    </table>
+                                    </div>
+                                </div>
+                              </div>
+                            </div>
+                          <div class="row mb-3">
+                            <div class="col-md">
+                              <label class="form-label" for="basic-default-phone">Add Inclusions <i class="small-font-style">(Please add each paragraph in a separate line)</i></label>
+                              <textarea class="form-control" rows="10"></textarea>
+                            </div>
+                            <div class="col-md">
+                              <label class="form-label" for="basic-default-phone">Add Exclusions <i class="small-font-style">(Please add each paragraph in a separate line)</i></label>
+                              <textarea class="form-control" rows="10"></textarea>
+                            </div>
+                          </div>
+                          <div class="row mb-3">
+                            <div class="col-md">
+                              <label class="form-label" for="basic-default-phone">Add Itineary <i class="small-font-style">(Please add each paragraph in a separate line)</i></label>
+                              <textarea class="form-control" rows="10"></textarea>
+                            </div>
+                          </div>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+              <!-- / Content -->
+            </div>
+        </div>
+      </div>
+    </div>
+    <script src="../assets/js/custom-script.js"></script>
+  </body>
+</html>

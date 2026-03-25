@@ -1,0 +1,141 @@
+@mixin vendor($property,$value){
+	-ms-#{$property}:$value;
+	-moz-#{$property}:$value;
+	-webkit-#{$property}:$value;
+	#{$property}:$value;
+}
+@mixin transform($property...) {
+	@include vendor(transform,$property);
+}
+@mixin box-shadow($shadow...){
+	@include vendor(box-shadow,$shadow);
+}
+@mixin text-shadow($shadow...){
+	@include vendor(text-shadow,$shadow);
+}
+@mixin position($property){
+	position:$property;
+}
+@mixin transition($property){
+	@include vendor(transition,$property);
+}
+
+/* flexbox mixin start*/
+@mixin flexbox(){
+	display:-webkit-box;
+ 	display:-ms-flexbox;
+ 	display:flex;
+}
+@mixin align-items($property){
+	-webkit-box-align: $property;
+       -ms-flex-align: $property;
+          align-items: $property;
+}
+@mixin justify-content($property){
+	-webkit-box-pack: $property;
+       -ms-flex-pack: $property;
+       justify-content: $property;
+}
+@mixin flex($property){
+	-webkit-box-flex:$property;
+        -ms-flex:$property;
+            flex:$property;
+}
+@mixin flex-wrap(){
+	-ms-flex-wrap:wrap;
+      flex-wrap:wrap;
+}
+@mixin flex-direction($property){
+	-webkit-box-orient:$property;
+  -webkit-box-direction:$property;
+    -ms-flex-direction:$property;
+        flex-direction:$property;
+}
+@mixin flex-flow(){
+	-webkit-box-orient:horizontal;
+	-webkit-box-direction:normal;
+    -ms-flex-flow:row wrap;
+        flex-flow:row wrap;
+}
+@mixin order($property){
+    -ms-flex-order:$property;
+        order:$property;
+}
+/* flexbox mixin end*/
+
+@mixin list(){
+	list-style:none;
+	list-style-type:none;
+	margin:0;
+	padding:0;
+}
+
+@mixin sprites(){
+    background: url(/wp-content/themes/su/assets/images/sprites-icons.png) no-repeat;
+}
+
+@mixin img-responsive(){
+	max-width:100%;
+}
+
+/* media query mixin start */
+@mixin breakpoint($point) {
+    
+    @if $point == desktop {
+        @media screen and (max-width: 1330px) { @content ; }
+    }
+    @else if $point == small-desktop {
+        @media screen and (max-width: 1060px) { @content ; }
+    }
+    @else if $point == laptop {
+        @media screen and (max-width: 960px) { @content ; }
+    }
+    @else if $point == tablet {
+        @media screen and (max-width: 1024px) { @content ; }
+    }
+     @else if $point == mobilelarge {
+        @media screen and (max-width: 620px) { @content ; }
+    }
+    @else if $point == micromobilenew {
+        @media screen and (max-width: 550px) { @content ; }
+    }
+    @else if $point == mobiledifferent {
+        @media screen and (max-width: 500px) { @content ; }
+    }
+    @else if $point == micromobile {
+        @media screen and (max-width: 480px) { @content ; }
+    }
+    @else if $point == minimobile {
+        @media screen and (max-width: 360px) { @content ; }
+    }
+    @else if $point == laptoptotab {
+        @media (min-width: 851px) and (max-width: 1011px) { @content ; }
+    }
+    @else if $point == desktoponly {
+        @media screen and (min-width: 620px) { @content ; }
+    }
+}
+
+
+/* font style mixin start */
+@mixin manrope($font-weight){
+    font-family: "Manrope", sans-serif;
+    font-weight: $font-weight;
+    font-optical-sizing: auto;
+    font-style: normal;
+}
+@mixin platypi($font-weight){
+    font-family: "Platypi", serif;
+    font-optical-sizing: auto;
+    font-weight: $font-weight;
+    font-style: normal;
+}
+@mixin montserrat($font-weight){
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: $font-weight;
+    font-style: normal;
+}
+/* font style mixin end */
+
+

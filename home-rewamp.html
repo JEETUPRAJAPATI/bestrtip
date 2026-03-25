@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Home Page</title>
+    <link rel="profile" href="https://gmpg.org/xfn/11" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Platypi:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+    <link href="assets/css/custom-package.min.css" rel="stylesheet" />
+    <link href="assets/css/home.min.css" rel="stylesheet" />
+    <link href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/ui-lightness/jquery-ui.css' rel='stylesheet'>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js"></script>
+    
+</head>
+<body>
+<div class="container">
+    <!-- Top Band -->
+    <div class="top-panel">
+        <div class="block">
+            <div class="left-panel">
+                <div class="icon"></div>
+            </div>
+            <div class="right-panel">
+                <ul>
+                    <li><a href="#">List Your Property</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Create Free Account</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- Navigation header -->
+    <div class="header">
+        <div class="block">
+            <header>
+                <div class="logo">
+                    <a href="#">LOGO</a>
+                </div>
+                <div class="nav">
+                    <nav>
+                        <ul>
+                            <li><a href="#"><span class="nav-icon"><img src="/assets/images/nav-item-icon-1.svg" /></span><span>Travel</span></a></li>
+                            <li><a href="#"><span class="nav-icon"><img src="/assets/images/nav-item-icon-1.svg" /></span><span>Hotel</span></a></li>
+                            <li><a href="#"><span class="nav-icon"><img src="/assets/images/nav-item-icon-1.svg" /></span><span>Tour</span></a></li>
+                            <li><a href="#"><span class="nav-icon"><img src="/assets/images/nav-item-icon-1.svg" /></span><span>Blog</span></a></li>
+                            <li class="login-btn"><a href="#"><span class="nav-icon"><img src="/assets/images/login-icon.svg" /></span><span>Login</span></a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </header>
+        </div>
+    </div>
+
+    <!-- Home Page Banner -->
+     <div class="main-banner-section">
+        <div class="block">
+            <div class="left-part">
+                <div class="header-tag">Book with us</div>
+                <h1>Find Next Place To <span>Ladakh</span></h1>
+                <p>Discover amzaing places at exclusive deals. Eat, Shop, Visit interesting places around the world. Discover amzaing places at exclusive deals. Eat, Shop, Visit interesting places around the world.</p>
+                <!-- Mega Search Module-->
+                <div class="mega-search">
+                    <div class="group-radio-selection">
+                        <div class="select-tour selected"><input type="radio" name="tour-type" id="group-tour" checked /> <label for="group-tour">Group Tour</label></div>
+                        <div class="select-tour"><input type="radio" name="tour-type" id="customize" /> <label for="customize">Customize Journey</label></div>
+                        <div class="select-tour"><input type="radio" name="tour-type" id="hotels" /> <label for="hotels">Hotels</label></div>
+                        <div class="select-tour"><input type="radio" name="tour-type" id="holiday-package" /> <label for="holiday-package">Holiday Package</label></div>
+                        <div class="select-tour"><input type="radio" name="tour-type" id="taxi" /> <label for="taxi">Taxi</label></div>
+                        <div class="select-tour"><input type="radio" name="tour-type" id="adventure" /> <label for="adventure">Adventure</label></div>
+                    </div>
+                    <div class="group-tour-form">
+                        <div class="single tour-type">
+                            <select>
+                                <option>Tour Type</option>
+                                <option>Bike Tour</option>
+                                <option>Road Tour</option>
+                            </select>
+                        </div>
+                        <div class="single traveling-from">
+                            <select>
+                                <option>Travelling From</option>
+                                <option>Delhi</option>
+                                <option>Mumbai</option>
+                            </select>
+                        </div>
+                        <div class="single select-destination">
+                            <select>
+                                <option>Destinations</option>
+                                <option>Leh</option>
+                                <option>Ladakh</option>
+                            </select>
+                        </div>
+                        <div class="single calendar">
+                            <input type="date" id="calendar" name="">
+                        </div>
+                        <div class="single">
+                            <button class="search">Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="right-part">
+                <div class="slider">
+                    <div class="slide">
+                        <figure>
+                            <img src="./assets/images/cards.png" alt="banner" />
+                        </figure>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <!-- Freshly tour package added-->
+    <div class="new-tour-package">
+        <div class="block">
+            <div class="blocks-header">
+                <div class="heading">
+                    <h2>Freshly Tour Packages Added</h2>
+                    <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry</p>
+                </div>
+                <div class="button"><a href="#">Explore all Tour Packages</a></div>
+            </div>
+            <div class="cards">
+                <a class="card" href="#">
+                    <div class="img-part">
+                        <span>5D | 4N</span>
+                        <figure><img src="./assets/images/tour-1.png" alt="tour" /></figure>
+                    </div>
+                    <h3>Srinagar Ladakh Manali Bike Trip Group Tour - Srinagar to Manali</h3>
+                    <div class="column">Price: <span class="price">5,321/-</span></div>
+                    <div class="column">Trip Start: <span>25 May, 2025</span></div>
+                    <div class="column">Total No. of People: <span>20</span></div>
+                    <div class="band">Only 12 slots are available</div>
+                </a>
+                <a class="card" href="#">
+                    <div class="img-part">
+                        <span>5D | 4N</span>
+                        <figure><img src="./assets/images/tour-2.png" alt="tour" /></figure>
+                    </div>
+                    <h3>Srinagar Ladakh Manali Bike Trip Group Tour - Srinagar to Manali</h3>
+                    <div class="column">Price: <span class="price">5,321/-</span></div>
+                    <div class="column">Trip Start: <span>25 May, 2025</span></div>
+                    <div class="column">Total No. of People: <span>20</span></div>
+                    <div class="band">Only 12 slots are available</div>
+                </a>
+                <a class="card" href="#">
+                    <div class="img-part">
+                        <span>5D | 4N</span>
+                        <figure><img src="./assets/images/tour-3.png" alt="tour" /></figure>
+                    </div>
+                    <h3>Srinagar Ladakh Manali Bike Trip Group Tour - Srinagar to Manali</h3>
+                    <div class="column">Price: <span class="price">5,321/-</span></div>
+                    <div class="column">Trip Start: <span>25 May, 2025</span></div>
+                    <div class="column">Total No. of People: <span>20</span></div>
+                    <div class="band red">Only 2 slots are available</div>
+                </a>
+                <a class="card" href="#">
+                    <div class="img-part">
+                        <span>5D | 4N</span>
+                        <figure><img src="./assets/images/tour-4.png" alt="tour" /></figure>
+                    </div>
+                    <h3>Srinagar Ladakh Manali Bike Trip Group Tour - Srinagar to Manali</h3>
+                    <div class="column">Price: <span class="price">5,321/-</span></div>
+                    <div class="column">Trip Start: <span>25 May, 2025</span></div>
+                    <div class="column">Total No. of People: <span>20</span></div>
+                    <div class="band">Only 12 slots are available</div>
+                </a>
+            </div>
+        </div>
+      </div>
+      
+      <!-- Hotel Destinations -->
+      <div class="hotel-destinations">
+        <div class="block">
+            <div class="blocks-header">
+                <div class="heading">
+                    <h2>Hotel Destinations</h2>
+                    <p>Explore our top destinations voted by more than 100,000+ customers around the world.s</p>
+                </div>
+                <div class="button"><a href="#">Explore all Destination</a></div>
+            </div>
+            <div class="cards">
+                <a class="card" href="#">
+                    <figure>
+                        <img src="./assets/images/dest-1.png" alt="tour" />
+                    </figure>
+                </a>
+                <a class="card" href="#">
+                    <figure>
+                        <img src="./assets/images/dest-1.png" alt="tour" />
+                    </figure>
+                </a>
+                <a class="card" href="#">
+                    <figure>
+                        <img src="./assets/images/dest-1.png" alt="tour" />
+                    </figure>
+                </a>
+                <a class="card" href="#">
+                    <figure>
+                        <img src="./assets/images/dest-1.png" alt="tour" />
+                    </figure>
+                </a>
+                <a class="card" href="#">
+                    <figure>
+                        <img src="./assets/images/dest-1.png" alt="tour" />
+                    </figure>
+                </a>
+            </div>
+        </div>
+      </div>
+
+      <!-- customize package -->
+      <div class="new-tour-package pink">
+        <div class="block">
+            <div class="blocks-header">
+                <div class="heading">
+                    <h2>Custom Package</h2>
+                    <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry</p>
+                </div>
+                <div class="button"><a href="#">Explore all Packages</a></div>
+            </div>
+            <div class="cards">
+                <a class="card" href="#">
+                    <div class="img-part">
+                        <span>5D | 4N</span>
+                        <figure><img src="./assets/images/tour-1.png" alt="tour" /></figure>
+                    </div>
+                    <h3>Srinagar Ladakh Manali Bike Trip Group Tour - Srinagar to Manali</h3>
+                    <div class="column">Price: <span class="price">5,321/-</span></div>
+                    <div class="column">Destination: <span>Ladakh</span></div>
+                    <div class="plan-3d"><img src="./assets/images/3d.png" alt="3d" /> Customize Your Plan</div>
+                </a>
+                <a class="card" href="#">
+                    <div class="img-part">
+                        <span>5D | 4N</span>
+                        <figure><img src="./assets/images/tour-2.png" alt="tour" /></figure>
+                    </div>
+                    <h3>Srinagar Ladakh Manali Bike Trip Group Tour - Srinagar to Manali</h3>
+                    <div class="column">Price: <span class="price">5,321/-</span></div>
+                    <div class="column">Destination: <span>Ladakh</span></div>
+                    <div class="plan-3d"><img src="./assets/images/3d.png" alt="3d" /> Customize Your Plan</div>
+                </a>
+                <a class="card" href="#">
+                    <div class="img-part">
+                        <span>5D | 4N</span>
+                        <figure><img src="./assets/images/tour-3.png" alt="tour" /></figure>
+                    </div>
+                    <h3>Srinagar Ladakh Manali Bike Trip Group Tour - Srinagar to Manali</h3>
+                    <div class="column">Price: <span class="price">5,321/-</span></div>
+                    <div class="column">Destination: <span>Ladakh</span></div>
+                    <div class="plan-3d"><img src="./assets/images/3d.png" alt="3d" /> Customize Your Plan</div>
+                </a>
+                <a class="card" href="#">
+                    <div class="img-part">
+                        <span>5D | 4N</span>
+                        <figure><img src="./assets/images/tour-4.png" alt="tour" /></figure>
+                    </div>
+                    <h3>Srinagar Ladakh Manali Bike Trip Group Tour - Srinagar to Manali</h3>
+                    <div class="column">Price: <span class="price">5,321/-</span></div>
+                    <div class="column">Destination: <span>Ladakh</span></div>
+                    <div class="plan-3d"><img src="./assets/images/3d.png" alt="3d" /> Customize Your Plan</div>
+                </a>
+            </div>
+        </div>
+      </div>
+
+      <!-- Blog section -->
+      <div class="blog-section">
+        <div class="block">
+            <div class="blocks-header">
+                <div class="heading">
+                    <h2>Our Blogs</h2>
+                    <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry</p>
+                </div>
+                <div class="button"><a href="#">Explore all Blogs</a></div>
+            </div>
+            <div class="cards">
+                <div class="card">
+                    <a href="#"><figure><img src="./assets/images/blog-1.png" alt="blog" /></figure></a>
+                    <div class="category-name"><a href="#">Category Name</a></div>
+                    <h3><a href="#">ipsum is simply dummy text impsum has been the industry's...</a></h3>
+                    <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard...</p>
+                    <div class="date-and-author">
+                        <date>25-Aug-2024</date>
+                        <div class="author-name">Author Name</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <a href="#"><figure><img src="./assets/images/blog-2.png" alt="blog" /></figure></a>
+                    <div class="category-name"><a href="#">Category Name</a></div>
+                    <h3><a href="#">ipsum is simply dummy text impsum has been the industry's...</a></h3>
+                    <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard...</p>
+                    <div class="date-and-author">
+                        <date>25-Aug-2024</date>
+                        <div class="author-name">Author Name</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <a href="#"><figure><img src="./assets/images/blog-3.png" alt="blog" /></figure></a>
+                    <div class="category-name"><a href="#">Category Name</a></div>
+                    <h3><a href="#">ipsum is simply dummy text impsum has been the industry's...</a></h3>
+                    <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard...</p>
+                    <div class="date-and-author">
+                        <date>25-Aug-2024</date>
+                        <div class="author-name">Author Name</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <footer>
+            <div class="left-footer">
+                <div class="col-1">
+                    <div class="logo"></div>
+                    <p>Rursus mal suada faci lisis the Lorem that the more ipsolarorit more that add in many ametion consectetur bulum as.</p>
+                    <div class="social-icons">
+                        <a class="#" class="twitter"></a>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <h3>Company</h3>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Terms & Conditions</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Blog</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="right-footer">
+                <h4>Newsletters & Updates</h4>
+                <p>Subscribe to get the latest tech career trends, guidance, and tips in your inbox.</p>
+                <div class="subscribe-news">
+                    <input type="text" placeholder="Email Address" />
+                    <button>Subscribe</button>
+                </div>
+                
+            </div>
+        </footer>
+      </div>
+</div>
+
+
+
+
+<script src="js/new-common-ui.js"></script>
+</body>
+</html>

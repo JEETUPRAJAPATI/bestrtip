@@ -1,0 +1,65 @@
+body, html{
+    margin: 0;
+    padding: 0;
+    font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Oxygen', 'Ubuntu', 'Cantarell',
+    'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+*,
+*:before,
+*:after {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+.top-header{
+    width: 100%;
+    height: 100px;
+    background: #fff;
+    .block{
+        max-width: 1475px;
+        margin: 0 auto;
+        @include flexbox;
+        @include align-items(center);
+        height: 100px;
+        @include justify-content(space-between);
+    }
+    .logo{
+        img{
+            height: 70px;
+        }
+    }
+    nav{
+        ul{
+            @include list;
+            @include flexbox;
+            @include align-items(center);
+            li{
+                padding: 0 20px;
+                &:last-child{
+                    padding-right: 0;
+                }
+            }
+            a{
+                color: #000;
+                text-decoration: none;
+                &:hover{
+                    border-bottom: solid 2px #435971;
+                    padding-bottom: 5px;
+                    color: #435971;
+                }
+                &.profile-icon{
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50px;
+                    background-color: #000;
+                    display: block;
+                    overflow: hidden;
+                    img{
+                        width: 30px;
+                        height: 30px;
+                        object-fit: cover;
+                    }
+                }
+            }
+        }
+    }
+}

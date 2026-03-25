@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <title>Package Booking</title>
+    <meta name="description" content="" />
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/img/favicon/favicon.ico" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Platypi:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.js"></script>
+
+    <!-- Core CSS -->
+    
+    <link href="assets/css/custom-package.min.css" rel="stylesheet" />
+    
+</head>
+<body>
+<div class="container">
+    <!-- Top Band -->
+    <div class="top-panel">
+        <div class="block">
+            <div class="left-panel">
+                <div class="icon"></div>
+            </div>
+            <div class="right-panel">
+                <ul>
+                    <li><a href="#">List Your Property</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Create Free Account</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- Navigation header -->
+    <div class="header">
+        <div class="block">
+            <header>
+                <div class="logo">
+                    <a href="#">LOGO</a>
+                </div>
+                <div class="nav">
+                    <nav>
+                        <ul>
+                            <li><a href="#"><span class="nav-icon"><img src="/assets/images/nav-item-icon-1.svg" /></span><span>Travel</span></a></li>
+                            <li><a href="#"><span class="nav-icon"><img src="/assets/images/nav-item-icon-1.svg" /></span><span>Hotel</span></a></li>
+                            <li><a href="#"><span class="nav-icon"><img src="/assets/images/nav-item-icon-1.svg" /></span><span>Tour</span></a></li>
+                            <li><a href="#"><span class="nav-icon"><img src="/assets/images/nav-item-icon-1.svg" /></span><span>Blog</span></a></li>
+                            <li class="login-btn"><a href="#"><span class="nav-icon"><img src="/assets/images/login-icon.svg" /></span><span>Login</span></a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </header>
+        </div>
+    </div>
+
+    <div class="customize-page-content group-tour">
+        <div class="main-content">
+          <div class="left-content">
+            <div class="main-banner-section">
+              <div class="block">
+                  <div class="left-part">
+                      <!-- Mega Search Module-->
+                      <div class="mega-search">
+                          <div class="group-radio-selection">
+                              <div class="select-tour selected"><input type="radio" name="tour-type" id="group-tour" checked /> <label for="group-tour">Group Tour</label></div>
+                              <div class="select-tour"><input type="radio" name="tour-type" id="customize" /> <label for="customize">Customize Journey</label></div>
+                              <!-- <div class="select-tour"><input type="radio" name="tour-type" id="hotels" /> <label for="hotels">Hotels</label></div>
+                              <div class="select-tour"><input type="radio" name="tour-type" id="holiday-package" /> <label for="holiday-package">Holiday Package</label></div>
+                              <div class="select-tour"><input type="radio" name="tour-type" id="taxi" /> <label for="taxi">Taxi</label></div>
+                              <div class="select-tour"><input type="radio" name="tour-type" id="adventure" /> <label for="adventure">Adventure</label></div> -->
+                          </div>
+                          <div class="group-tour-form">
+                              <div class="single tour-type">
+                                  <select>
+                                      <option>Tour Type</option>
+                                      <option>Bike Tour</option>
+                                      <option>Road Tour</option>
+                                  </select>
+                              </div>
+                              <div class="single traveling-from">
+                                  <select>
+                                      <option>Travelling From</option>
+                                      <option>Delhi</option>
+                                      <option>Mumbai</option>
+                                  </select>
+                              </div>
+                              <div class="single select-destination">
+                                  <select>
+                                      <option>Destinations</option>
+                                      <option>Leh</option>
+                                      <option>Ladakh</option>
+                                  </select>
+                              </div>
+                              <div class="single calendar">
+                                  <input type="date" id="calendar" name="">
+                              </div>
+                              <div class="single">
+                                  <button class="search">Search</button>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <!-- Add rooming detail -->
+                  <div class="row mb-3 select-rooms" id="package-other-details">
+                  </div>
+              </div>
+            </div>
+            <!-- TOC Section -->
+            <div class="toc-section">
+              <ul>
+                <li><a href="#" class="selected">Overview</a></li>
+                <li><a href="#">Itinerary</a></li>
+                <li><a href="#">Transportation</a></li>
+                <li><a href="#">Hotels</a></li>
+                <li><a href="#">Extra Services</a></li>
+                <li><a href="#">Per Service</a></li>
+                <li><a href="#">Inclusions</a></li>
+                <li><a href="#">Exclusions</a></li>
+              </ul>
+            </div>
+            <!-- Title and Gallery Section -->
+            <div class="gallery-section">
+              <div class="gallery-header">
+                <div class="gallery-title">
+                  <h1>Ladakh Delight</h1>
+                </div>
+                <div class="rating-with-pkg">
+                  <p>6 Nights/7 Days | Customizable Package</p>
+                  <div class="rating">4.5/5 - 245 Reviews</div>
+                </div>
+              </div>
+              <div class="gallery-images">
+                <div class="l-img">
+                  <img src="/assets/images/img-1.jpg" alt="gallery" />
+                </div>
+                <div class="s-img">
+                  <div class="col"><img src="/assets/images/image-2.jpg" alt="gallery" /></div>
+                  <div class="col"><img src="/assets/images/image-3.jpg" alt="gallery" /></div>
+                </div>
+                <div class="s-img">
+                  <div class="col"><img src="/assets/images/image-4.jpg" alt="gallery" /></div>
+                  <div class="col"><img src="/assets/images/image-5.jpg" alt="gallery" /></div>
+                </div>
+              </div>
+            </div>
+            <!-- Overview section -->
+            <div class="overview-section">
+              <h2>Overview</h2>
+              <p>The Markha valley is located south of Leh, between the ladakh and Zanskar mountain ranges. Markha is a beautiful valley consists of quaint villages and is worth visiting. Unfortunately it is only accessible on foot, so unless you are willing to trek you won’t be able to visit Markha valley. The Markha valley trek is one of the most popular and the most scenic trek route. There are high passes and pastures, ruined forts and important gompas in the valley, as well as astonishing views of snow-cap</p>
+            </div>
+            <!-- Itinerary section -->
+            <div class="itinerary-section">
+              <h2>Itinerary</h2>
+              <div class="table-structure">
+                <div class="table-responsive">
+                  <table cellpadding="0" cellspacing="0" class="gt-table">
+                    <thead class="table-dark">
+                      <tr>
+                        <th>Room Sharing</th>
+                        <th>Price per person</th>
+                        <th>No. of Pax</th>
+                        <th>Bike</th>
+                        <th>Room</th>
+                        <th>Total amount</th>
+                      </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0" id="itinerary-list">
+                      <tr>
+                        <td>Solo riding on Double Room</td>
+                        <td>₹ 52197</td>
+                        <td><input type="number" placeholder="1" /></td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>₹ 52197</td>
+                      </tr>
+                      <tr>
+                        <td>Double riding on Double Room</td>
+                        <td>₹ 52197</td>
+                        <td><input type="number" placeholder="1" /></td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>₹ 52197</td>
+                      </tr>
+                      <tr>
+                        <td>Solo riding on Double Room</td>
+                        <td>₹ 52197</td>
+                        <td><input type="number" placeholder="1" /></td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>₹ 52197</td>
+                      </tr>
+                      <tr>
+                        <td>Solo riding Single Room</td>
+                        <td>₹ 52197</td>
+                        <td><input type="number" placeholder="1" /></td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>₹ 52197</td>
+                      </tr>
+                      <tr>
+                        <td>Double riding Single Room</td>
+                        <td>₹ 52197</td>
+                        <td><input type="number" placeholder="1" /></td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>₹ 52197</td>
+                      </tr>
+                      <tr>
+                        <td>3 Rider 2. bike 1 Triple room</td>
+                        <td>₹ 52197</td>
+                        <td><input type="number" placeholder="1" /></td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>₹ 52197</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <!-- Inclusion and Exclusion -->
+            <div class="inclusion-exclusion">
+                <div class="exclusion-col colm">
+                  <h2>Exclusions</h2>
+                  <ol>
+                    <li>All riders will be expected to pay their own fuel bills at petrol stations</li>
+                    <li>International / Domestic air fare, visa fees, airport tax or any kind of insurance cover</li>
+                    <li>Items of personal nature like drinks, laundry, telephone calls, tips, camera fees, etc.</li>
+                    <li>Liability for change in itinerary due to reasons beyond IYC?s control like change in flight and train</li>
+                    <li>schedule, cancellation of flights/trains, political disturbances, natural phenomenon, etc</li>
+                    <li>Extra cost due to any change in the itinerary/ stay on account of flight cancellation due to bad weather, ill health, roadblocks and/or any factors beyond control</li>
+                    <li>All applicable taxes</li>
+                    <li>Any other item not specifically mentioned above as ?INCLUDED</li>
+                    <li>Any meal other than mentioned in the itinerary</li>
+                    <li> Monument fee</li>
+                  </ol>
+                </div>
+                <div class="inclusion-col colm">
+                  <h2>Inclusions</h2>
+                  <ol> 
+                    <li>Accommodation on Budget/ Homestay experience / swiss camp / resort</li>
+                    <li>Small coach /tempo traveler</li>
+                    <li>11 Buffet Breakfast and 11Buffet Dinner (Dinner on Day 01 to Breakfast on Day 11)</li>
+                    <li>Oxygen Cylinder and First Aid Kit</li>
+                    <li>Local village and cultural experience</li>
+                    <li>Tour coordinator from Delhi to Srinagar</li>
+                    <li>Turtuk lunch experience and last Indian village and interact with local people on the history</li>
+                    <li>Cultural and dance show and campfire in Nubra Valley</li>
+                    <li>One day local cuisine with local experience of local people and the village</li>
+                    <li>Mediation with the local monk in the morning at Thiksey monastery and nearby monastery.</li>
+                  </ol>
+                </div>
+            </div>
+          </div>
+          <div class="right-content">
+            <div class="booking-summary">
+              <div class="card">
+                <div class="head">
+                  <h3>Group Tour</h3>
+                </div>
+                <div class="summary-detail group-tour">
+                  <div class="single">
+                    <div class="title">Package:</div>
+                    <div class="desc">Srinagar to Manali</div>
+                  </div>
+                  <div class="single">
+                    <div class="title">Duration:</div>
+                    <div class="desc">9 Days 8 Nights</div>
+                  </div>
+                  <div class="single">
+                    <div class="title">Travel Date:</div>
+                    <div class="desc">2024-12-26</div>
+                  </div>
+                  <div class="single">
+                    <div class="title">Total No. of Pax:</div>
+                    <div class="desc">5</div>
+                  </div>
+                  <div class="single">
+                    <div class="title">Solo riding on Double Room:</div>
+                    <div class="desc">1</div>
+                  </div>
+                  <div class="single">
+                    <div class="title">Solo riding on Double Room:</div>
+                    <div class="desc">1</div>
+                  </div>
+                  <div class="single">
+                    <div class="title">Double riding on Double Room:</div>
+                    <div class="desc">2</div>
+                  </div>
+                  <div class="single">
+                    <div class="title">Solo riding on Single Room:</div>
+                    <div class="desc">2</div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="summary-detail group-tour" style="border-radius: 0 0 12px 12px">
+                  <div class="single">
+                    <div class="title"><label class="form-label">Total Person</label></div>
+                    <div class="desc">5</div>
+                  </div>
+                  <div class="single">
+                    <div class="title"><label class="form-label">Total Amount</label></div>
+                    <div class="desc">₹2,25,979</div>
+                  </div>
+                  <div class="single full-width">
+                    <button type="submit" class="btn btn-primary"><span class="g-icon"><img src="/assets/images/file-request-quote.svg" /></span><span>₹22,979 Pay Now</span></button>
+                    <div class="note">10% amount will be payable at the time of Booking.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+
+
+
+      <div class="footer">
+        <footer>
+            <div class="left-footer">
+                <div class="col-1">
+                    <div class="logo"></div>
+                    <p>Rursus mal suada faci lisis the Lorem that the more ipsolarorit more that add in many ametion consectetur bulum as.</p>
+                    <div class="social-icons">
+                        <a class="#" class="twitter"></a>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <h3>Company</h3>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Terms & Conditions</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Blog</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="right-footer">
+                <h4>Newsletters & Updates</h4>
+                <p>Subscribe to get the latest tech career trends, guidance, and tips in your inbox.</p>
+                <div class="subscribe-news">
+                    <input type="text" placeholder="Email Address" />
+                    <button>Subscribe</button>
+                </div>
+                
+            </div>
+        </footer>
+      </div>
+</div>
+
+
+
+
+<script src="js/new-common-ui.js"></script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+-- Create overview_section table
+CREATE TABLE overview_section (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    description TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Create overview_section_images table
+CREATE TABLE overview_section_images (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    overview_section_id INT NOT NULL,
+    image_path VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (overview_section_id) REFERENCES overview_section(id) ON DELETE CASCADE
+);
+
+ALTER TABLE `overview_section` ADD `status` VARCHAR(100) NOT NULL DEFAULT 'draff' AFTER `description`;
+
+ALTER TABLE `packages` ADD `agents` VARCHAR(100) NULL DEFAULT NULL AFTER `id`, ADD `destination` VARCHAR(40) NULL DEFAULT NULL AFTER `agents`;
+
+ALTER TABLE `packages` ADD `description` TEXT NULL DEFAULT NULL AFTER `duration`;
+
+ALTER TABLE `overview_section_images` CHANGE `overview_section_id` `package_id` INT(11) NOT NULL;
+
+
+ALTER TABLE `package_details` ADD `fortuner` VARCHAR(100) NULL DEFAULT NULL AFTER `cryista`;
+
+ALTER TABLE `packages` ADD `custom_package` INT(1) NULL DEFAULT '0' COMMENT '(0=>not active,1=>active)' AFTER `status`;
+
+CREATE TABLE `traveling_from` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(100) NOT NULL,
+  `status` VARCHAR(50) NOT NULL DEFAULT 'Active' COMMENT 'active,inactive',
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+ALTER TABLE `packages` ADD `traveling_from` TINYINT NULL DEFAULT NULL AFTER `destination`;
+
+
+CREATE TABLE `besttripdeal`.`flight_lists` (`id` INT NOT NULL AUTO_INCREMENT , `from` VARCHAR(50) NOT NULL , `destination` VARCHAR(50) NOT NULL , `flight_name` VARCHAR(100) NOT NULL , `flight_detail` TEXT NOT NULL , `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `updated_at` DATETIME on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+CREATE TABLE `besttripdeal`.`flight_dates` (`id` INT NOT NULL AUTO_INCREMENT , `flight_id` INT NOT NULL , `date` DATE NOT NULL , `time` TIME NOT NULL , `price` VARCHAR(100) NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+
+
+ALTER TABLE `package_details` ADD `meal_plan` VARCHAR(100) NULL DEFAULT NULL AFTER `luxury_plus`;
+
+CREATE TABLE `blogs` (`id` INT NOT NULL AUTO_INCREMENT , `title` TEXT NOT NULL , `category` VARCHAR(50) NOT NULL , `author_name` VARCHAR(50) NOT NULL , `description` TEXT NOT NULL , `image` VARCHAR(100) NOT NULL , `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `updated_at` DATETIME on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `blogs` ADD `status` VARCHAR(100) NULL DEFAULT NULL COMMENT 'Active,Inactive' AFTER `image`;
+ALTER TABLE `flight_lists` ADD `person` VARCHAR(50) NULL DEFAULT NULL AFTER `flight_detail`;
+
+ALTER TABLE `flight_lists` CHANGE `status` `status` ENUM('Active','Inactive') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT 'Active' COMMENT 'Active,Inactive';
+
+
+
+CREATE TABLE `flight_destination` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) NOT NULL,
+  `status` varchar(50) NOT NULL DEFAULT 'Active',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `name_unique` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `flight_details` (
+  `id` int(11) NOT NULL,
+  `flight_id` int(11) NOT NULL,
+  `flight_number` varchar(100) DEFAULT NULL,
+  `departure_datetime` datetime NOT NULL,
+  `arrival_datetime` datetime NOT NULL,
+  `price` varchar(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `flight_lists` ADD `flight_number` JSON NOT NULL AFTER `destination`;
+ALTER TABLE `services` ADD `package_id` INT NULL DEFAULT NULL AFTER `id`;
+
+
+
+06-03-2025
+
+
+CREATE TABLE `taxi` (
+  `id` int(11) NOT NULL,
+  `destination` varchar(40) DEFAULT NULL,
+  `traveling_from` tinyint(4) DEFAULT NULL,
+  `package_code` varchar(20) DEFAULT NULL,
+  `package_name` varchar(50) NOT NULL,
+  `duration` varchar(20) NOT NULL,
+  `description` text DEFAULT NULL,
+  `status` enum('Active','Inactive','Deleted') NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+
+CREATE TABLE `taxi_details` (
+  `id` int(11) NOT NULL,
+  `taxi_id` int(11) DEFAULT NULL,
+  `coach` varchar(50) DEFAULT NULL,
+  `tempo` varchar(50) DEFAULT NULL,
+  `cryista` varchar(50) DEFAULT NULL,
+  `fortuner` varchar(100) DEFAULT NULL,
+  `innova` varchar(50) DEFAULT NULL,
+  `zyalo_ertiga` varchar(50) DEFAULT NULL,
+  `eco` varchar(50) DEFAULT NULL,
+  `location` varchar(50) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `bike` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+
+ALTER TABLE `overview_section_images` ADD `taxi_id` VARCHAR(10) NULL DEFAULT NULL AFTER `package_id`;
+ALTER TABLE `overview_section_images` CHANGE `package_id` `package_id` INT(11) NULL DEFAULT NULL;
+ALTER TABLE `services` ADD `taxi_id` INT(20) NULL DEFAULT NULL AFTER `package_id`;

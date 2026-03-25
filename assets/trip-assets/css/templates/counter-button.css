@@ -1,0 +1,31 @@
+/**
+ * WEBSITE: https://NodeAscend.com
+ * TWITTER: https://twitter.com/NodeAscend
+ * FACEBOOK: https://www.facebook.com/NodeAscend
+ * GITHUB: https://github.com/NodeAscend/
+ */
+
+.room-counter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.counter-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: white;
+  border: 1px solid #dee2e6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.counter-value {
+  margin: 0 15px;
+  font-weight: bold;
+}
+/*# sourceMappingURL=counter-button.css.map */

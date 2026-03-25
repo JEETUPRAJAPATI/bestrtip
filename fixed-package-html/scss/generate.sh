@@ -1,0 +1,1 @@
+sass --style=compressed  scss/page.scss css/page.min.css --no-source-map

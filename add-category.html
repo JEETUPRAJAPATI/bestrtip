@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <title>CRM for sales management</title>
+    <meta name="description" content="" />
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="../assets/img/favicon/favicon.ico" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="../assets/vendor/css/core.css" />
+    <link rel="stylesheet" href="../assets/css/style.min.css" />
+    <link rel="stylesheet" href="../assets/vendor/css/theme-default.css" />
+  </head>
+
+  <body>
+    <!-- Layout wrapper -->
+    <div class="layout-wrapper layout-content-navbar">
+      <div class="layout-container">
+        <!-- Menu -->
+
+        <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+          <div class="app-brand demo bg-dark">
+            <a href="index.html" class="app-brand-link">
+              <span class="app-brand-logo demo">
+                <img src="../assets/img/logo.png" alt="logo" />
+              </span>
+            </a>
+          </div>
+
+          <div class="menu-inner-shadow"></div>
+          <ul class="menu-inner py-1 bg-dark pt-3">
+            <!-- Forms -->
+            <li class="menu-item active open">
+              <ul class="menu-sub">
+                <li class="menu-item">
+                  <a href="add-package.html" class="menu-link">
+                    <div data-i18n="Basic Inputs">Add Package</div>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a href="view-package.html" class="menu-link">
+                    <div data-i18n="Basic Inputs">View Package</div>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a href="all-booking-summary.html" class="menu-link">
+                    <div data-i18n="Input groups">All Booking Summary</div>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a href="all-query-summary.html" class="menu-link">
+                    <div data-i18n="Input groups">All Query Summary</div>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a href="all-invoices.html" class="menu-link">
+                    <div data-i18n="Input groups">All Invoices</div>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a href="agent-information.html" class="menu-link">
+                    <div data-i18n="Input groups">Agent Information</div>
+                  </a>
+                </li>
+                <li class="menu-item">
+                    <a href="add-hotel-information.html" class="menu-link">
+                      <div data-i18n="Input groups">Add Hotel Information</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="view-hotel-information.html" class="menu-link">
+                      <div data-i18n="Input groups">View Hotel Information</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="add-vehicle-details.html" class="menu-link">
+                      <div data-i18n="Input groups">Add vehicle details</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="view-vehicle-details.html" class="menu-link">
+                      <div data-i18n="Input groups">View vehicle details</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="add-guide-details.html" class="menu-link">
+                      <div data-i18n="Input groups">Add Guide details</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="view-guide-details.html" class="menu-link">
+                      <div data-i18n="Input groups">View Guide details</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="add-destination.html" class="menu-link">
+                      <div data-i18n="Input groups">Add Destination</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="view-destination.html" class="menu-link">
+                      <div data-i18n="Input groups">View Destination</div>
+                    </a>
+                </li>
+                <li class="menu-item active">
+                    <a href="add-category.html" class="menu-link">
+                      <div data-i18n="Input groups">Add Category</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="view-category.html" class="menu-link">
+                      <div data-i18n="Input groups">View Category</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="add-fixed-package.html" class="menu-link">
+                      <div data-i18n="Input groups">Add Fixed Package</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="view-fixed-package.html" class="menu-link">
+                      <div data-i18n="Input groups">View Fixed Package</div>
+                    </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </aside>
+        <!-- / Menu -->
+
+        <!-- Layout container -->
+        <div class="layout-page">
+  
+            <!-- Content wrapper -->
+            <div class="content-wrapper">
+              <!-- Content -->
+  
+                <div class="container-xxl flex-grow-1 container-p-y">
+                  
+                <h4 class="py-3 mb-4">Add Category</h4>
+  
+                <!-- Basic Layout -->
+                  <div class="row">
+                    <div class="col-xl">
+                      <div class="card mb-4">
+                        <div class="card-body">
+                          <form>
+                            <div class="mb-3">
+                              <label class="form-label" for="basic-default-company">Category</label>
+                              <input type="text" class="form-control" placeholder="" />
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+              <!-- / Content -->
+            </div>
+        </div>
+      </div>
+    </div>
+    <script src="../assets/js/custom-script.js"></script>
+  </body>
+</html>

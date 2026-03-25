@@ -1,0 +1,64 @@
+.app-brand-logo{
+    display: block;
+    text-align: center;
+    padding-top: 20px;
+    img{
+        height: 75px;
+    }
+}
+
+.border-right-white{
+    border-right: solid 1px rgba(255,255,255,0.6);
+}
+.border-right-dark{
+    border-right: solid 1px rgba(0,0,0,0.2);
+}
+.sticky-col {
+    position: -webkit-sticky;
+    position: sticky;
+    background-color: white;
+  }
+
+.search-module{
+    display: flex;
+}
+.pos-relative{
+    position: relative !important;
+}
+.custom-dd-menu{
+    position: absolute;
+    right: 0;
+    display: none;
+    &.display-block{
+        display: block;
+    }
+}
+.bx-dots-vertical-rounded{
+    display: block;
+    width: 5px;
+    height: 18px;
+    position: relative;
+    padding-left: 33px;
+    span{
+        display: inline-block;
+        position: relative;
+        width: 4px;
+        height: 4px;
+        background: #000;
+        border-radius: 10px;
+        top: -12px;
+        &::after, &::before{
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            content: '';
+            background: #000;
+            left: 0;
+            border-radius: 10px;
+            top: 6px;
+        }
+        &::after{
+            top: 12px;
+        }
+    }
+}

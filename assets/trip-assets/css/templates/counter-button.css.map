@@ -1,0 +1,8 @@
+/**
+ * WEBSITE: https://NodeAscend.com
+ * TWITTER: https://twitter.com/NodeAscend
+ * FACEBOOK: https://www.facebook.com/NodeAscend
+ * GITHUB: https://github.com/NodeAscend/
+ */
+
+{"version":3,"sources":["templates/counter-button.scss","templates/counter-button.css"],"names":[],"mappings":"AAAA;EACI,aAAA;EACA,uBAAA;EACA,mBAAA;EACA,gBAAA;ACCJ;;ADEA;EACI,WAAA;EACA,YAAA;EACA,kBAAA;EACA,uBAAA;EACA,yBAAA;EACA,aAAA;EACA,mBAAA;EACA,uBAAA;EACA,eAAA;ACCJ;;ADEA;EACI,cAAA;EACA,iBAAA;ACCJ","file":"counter-button.css","sourcesContent":[".room-counter {\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    margin-top: 10px;\n}\n\n.counter-btn {\n    width: 30px;\n    height: 30px;\n    border-radius: 50%;\n    background-color: white;\n    border: 1px solid #dee2e6;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    cursor: pointer;\n}\n\n.counter-value {\n    margin: 0 15px;\n    font-weight: bold;\n}",".room-counter {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  margin-top: 10px;\n}\n\n.counter-btn {\n  width: 30px;\n  height: 30px;\n  border-radius: 50%;\n  background-color: white;\n  border: 1px solid #dee2e6;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  cursor: pointer;\n}\n\n.counter-value {\n  margin: 0 15px;\n  font-weight: bold;\n}"]}

@@ -1,0 +1,100 @@
+/*--- color variables  ----*/
+$white :#ffffff;
+$black :#000000;
+$purple : #3e1e66;
+
+// Icon Image
+$img-path:'/wp-content/themes/su/assets/images/sprite.svg';
+$path:'/wp-content/themes/su/assets/images';
+.icon{
+    width:22px;
+    height: 22px;
+    background: url($img-path) no-repeat;
+    display: inline-block;
+    position: relative;
+    top: 4px;
+    &.icon-cctv{
+        background-position: -9px -49px;
+        margin-left: 2px;
+    }
+    &.icon-point{
+        background-position: -4px -72px;
+    }
+    &.icon-plus{
+        background-position: -4px -91px;
+    }
+    &.icon-phone{
+        background-position: -7px -119px;
+        margin-right: 12px;
+    }
+    &.icon-map{
+        background-position: -10px -145px;
+        margin-right: 12px;
+        top: 5px;
+    }
+    &.right-arrow{
+        background-position: -57px -5px;
+        
+    }
+    &.icon-thumb-up{
+        background-position: -9px -23px;
+        margin-right: 12px;
+        top: 3px;
+    }
+    &.icon-phone-white{
+        background-position: -38px -116px;
+        margin-right: 7px;
+        width: 17px;
+        top: 4px;
+    }
+    &.icon-map-white{
+        background-position: -45px -144px;
+        margin-right: 10px;
+        top: 4px;
+    }
+    &.clock-icon{
+        background-position: -147px -5px;
+        margin-right: 24px;
+        top: 4px;
+        width: 36px;
+        height: 36px;
+    }
+    &.icon-left-arrow{
+        background-position: -167px -166px;
+        border-radius: 5.51px;
+        background-color: rgba(83, 83, 83, 0.30);
+        width: 34px;
+        height: 42px;
+        left: 15px;
+    }
+    &.icon-right-arrow{
+        background-position:-128px -166px;
+        border-radius: 5.51px;
+        background-color: rgba(83, 83, 83, 0.30);  
+        width: 34px;
+        height: 42px;  
+        right: 15px;
+    }
+    &.icon-info{
+        background-position: -8px -172px;
+        width: 23px;
+        height: 24px;
+        margin-right: 5px;
+        position: relative;
+        top: 7px;
+    }
+    &.icon-su{
+        background-position: -45px -172px;
+        width: 26px;
+        height: 26px;
+        margin-right: 10px;
+        position: relative;
+    }
+    &.icon-vehicle{
+        background-position: -86px -172px;
+        width: 26px;
+        height: 26px;
+        margin-right: 10px;
+        position: relative;
+    }
+}
