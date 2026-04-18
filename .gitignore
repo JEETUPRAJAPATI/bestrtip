@@ -1,0 +1,57 @@
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.tmp
+*.temp
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Environment / secrets
+.env
+.env.*
+*.local
+
+# Logs
+*.log
+error_log
+webhook_log.txt
+
+# Runtime / cache
+cache/
+tmp/
+temp/
+*.pid
+
+# Archives / backups
+*.zip
+*.tar
+*.gz
+*.7z
+*.bak
+*.old
+
+# PHP / Composer noise
+composer.phar
+.phpunit.result.cache
+
+# Node (if used for tooling)
+node_modules/
+
+# PHP dependencies
+vendor/
+Dompdf/vendor/
+helpers/vendor/
+
+# Generated files
+*.xlsx
+*.csv
+*.pdf
+
+# Uploaded/generated data (keep folder structure out of git)
+uploads/*
+!uploads/.gitkeep
