@@ -10,6 +10,39 @@ error_reporting(E_ALL);
 $db = getDbInstance();
 $properties = $db->get('properties');
 
+function getPropertyRoomAvailability($propertyId, $checkInDate, $checkOutDate, $excludeBookingId = null)
+{
+    $db = getDbInstance();
+    $property = $db->where('id', $propertyId)->getOne('properties', ['no_of_rooms']);
+
+    if (!$property || empty($checkInDate) || empty($checkOutDate)) {
+        return [
+            'total_rooms' => 0,
+            'booked_rooms' => 0,
+            'available_rooms' => 0,
+        ];
+    }
+
+    $db->where('property_id', (int)$propertyId);
+    $db->where('status', ['Confirmed', 'Hold'], 'IN');
+    $db->where('check_in_date', $checkOutDate, '<=');
+    $db->where('check_out_date', $checkInDate, '>=');
+
+    if (!empty($excludeBookingId)) {
+        $db->where('id', (int)$excludeBookingId, '!=');
+    }
+
+    $occupied = $db->getValue('property_booking', 'COALESCE(SUM(no_of_rooms), 0)');
+    $totalRooms = (int)($property['no_of_rooms'] ?? 0);
+    $bookedRooms = (int)$occupied;
+
+    return [
+        'total_rooms' => $totalRooms,
+        'booked_rooms' => $bookedRooms,
+        'available_rooms' => max(0, $totalRooms - $bookedRooms),
+    ];
+}
+
 // Check if this is edit mode
 $booking = [];
 $id = isset($_GET['crm']) && !empty($_GET['crm']) ? decryptId($_GET['crm']) : "";
@@ -36,69 +69,101 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $data = array_map(function($val) { return is_string($val) ? trim($val) : $val; }, $_POST);
 
-    // ── NEW: Encode repeatable extra services as JSON ──
-    $serviceNames  = $_POST['service_name']  ?? [];
-    $servicePrices = $_POST['service_price'] ?? [];
-    $services = [];
-    foreach ($serviceNames as $i => $sn) {
-        if (!empty(trim($sn))) {
-            $services[] = ['name' => trim($sn), 'price' => floatval($servicePrices[$i] ?? 0)];
-        }
+    $computedRooms = (int)($data['double_room_count'] ?? 0) + (int)($data['single_room_count'] ?? 0);
+    $data['no_of_rooms'] = $computedRooms;
+
+    $roomTotal = (float)($data['double_room_total'] ?? 0)
+        + (float)($data['extra_bed_total'] ?? 0)
+        + (float)($data['child_no_bed_total'] ?? 0)
+        + (float)($data['single_total'] ?? 0);
+    $serviceTotal = 0;
+    foreach (($_POST['service_price'] ?? []) as $servicePrice) {
+        $serviceTotal += (float)$servicePrice;
     }
-    $data['extra_services'] = json_encode($services);
-    unset($data['service_name'], $data['service_price']);
-    // compute final_total server-side (readonly field not submitted by browser)
-    $totalAmt   = floatval($data['total_amount']        ?? 0);
-    $svcTotal   = floatval($data['extra_services_total'] ?? 0);
-    $discAmt    = floatval($data['discount_amount']      ?? 0);
-    $data['final_total'] = max(0, $totalAmt + $svcTotal - $discAmt);
-    // total_pax also computed server-side
-    $data['total_pax'] = intval($data['total_pax'] ?? (
-        (intval($data['double_room_count'] ?? 0) * 2)
-        + intval($data['single_room_count']  ?? 0)
-        + intval($data['extra_bed_count']    ?? 0)
-        + intval($data['child_no_bed_count'] ?? 0)
-    ));
-    unset($data['total_pax_display'], $data['dbl_display'], $data['cnb_display'], $data['eb_display'], $data['sgl_display']);
-    // ─────────────────────────────────────────────────
+    $discountPercent = (float)($data['discount_percent'] ?? 0);
+    $discountAmount = $roomTotal * ($discountPercent / 100);
 
-    // $lastBooking = $db->orderBy("id", "desc")->getOne("property_booking", "booking_id");
-    // $lastIdNumber = 0;
+    $data['total_amount'] = $roomTotal;
+    $data['extra_services_total'] = $serviceTotal;
+    $data['discount_amount'] = $discountAmount;
+    $data['final_total'] = max(0, $roomTotal + $serviceTotal - $discountAmount);
+    $data['due_amount'] = max(0, $data['final_total'] - (float)($data['booking_token'] ?? 0));
 
-    // if ($lastBooking && !empty($lastBooking['booking_id']) && preg_match('/TAJX(\d+)/', $lastBooking['booking_id'], $matches)) {
-    //     $lastIdNumber = (int)$matches[1];
-    // }
-    // $newBookingId = 'TAJX' . str_pad($lastIdNumber + 1, 4, '0', STR_PAD_LEFT);
-    // $data['booking_id'] = $newBookingId;
+    $propertyId = (int)($data['property_id'] ?? 0);
+    $checkInDate = $data['check_in_date'] ?? '';
+    $checkOutDate = $data['check_out_date'] ?? '';
+    $availability = getPropertyRoomAvailability($propertyId, $checkInDate, $checkOutDate, $edit ? $id : null);
 
-    if ($edit) {
-        $db->where('id', $id);
-        $update = $db->update('property_booking', $data);
-
-        if ($update) {
-            $_SESSION['success'] = "Booking updated successfully!";
-            header("Location: property_booking_list.php");
-            exit();
-        } else {
-            $_SESSION['failure'] = "Update failed: " . $db->getLastError();
+    if ($propertyId && $checkInDate && $checkOutDate && $computedRooms > $availability['available_rooms']) {
+        $_SESSION['failure'] = 'Only ' . $availability['available_rooms'] . ' room(s) available for the selected property and dates.';
+        $booking = array_merge($booking, $data);
+        $edit = !empty($id);
+        $existingServices = [];
+        if (!empty($booking['extra_services'])) {
+            $decoded = json_decode($booking['extra_services'], true);
+            if (is_array($decoded)) $existingServices = $decoded;
         }
+        if (empty($existingServices)) $existingServices = [['name' => '', 'price' => '']];
     } else {
-        $lastBooking = $db->orderBy("id", "desc")->getOne("property_booking", "booking_id");
-        $lastIdNumber = 0;
-        if ($lastBooking && preg_match('/SSP(\d+)/', $lastBooking['booking_id'], $matches)) {
-            $lastIdNumber = (int)$matches[1];
+        // ── NEW: Encode repeatable extra services as JSON ──
+        $serviceNames  = $_POST['service_name']  ?? [];
+        $servicePrices = $_POST['service_price'] ?? [];
+        $services = [];
+        foreach ($serviceNames as $i => $sn) {
+            if (!empty(trim($sn))) {
+                $services[] = ['name' => trim($sn), 'price' => floatval($servicePrices[$i] ?? 0)];
+            }
         }
-        $newBookingId = 'SSP' . str_pad($lastIdNumber + 1, 6, '0', STR_PAD_LEFT);
-        $data['booking_id'] = $newBookingId;
+        $data['extra_services'] = json_encode($services);
+        unset($data['service_name'], $data['service_price']);
+        // total_pax also computed server-side
+        $data['total_pax'] = intval($data['total_pax'] ?? (
+            (intval($data['double_room_count'] ?? 0) * 2)
+            + intval($data['single_room_count']  ?? 0)
+            + intval($data['extra_bed_count']    ?? 0)
+            + intval($data['child_no_bed_count'] ?? 0)
+        ));
+        unset($data['total_pax_display'], $data['dbl_display'], $data['cnb_display'], $data['eb_display'], $data['sgl_display']);
+        // ─────────────────────────────────────────────────
 
-        $insert = $db->insert('property_booking', $data);
+        // $lastBooking = $db->orderBy("id", "desc")->getOne("property_booking", "booking_id");
+        // $lastIdNumber = 0;
 
-        if ($insert) {
-            $_SESSION['success'] = "Booking added successfully!";
-            header("Location: property_booking_list.php");
-            exit();
+        // if ($lastBooking && !empty($lastBooking['booking_id']) && preg_match('/TAJX(\d+)/', $lastBooking['booking_id'], $matches)) {
+        //     $lastIdNumber = (int)$matches[1];
+        // }
+        // $newBookingId = 'TAJX' . str_pad($lastIdNumber + 1, 4, '0', STR_PAD_LEFT);
+        // $data['booking_id'] = $newBookingId;
+
+        if ($edit) {
+            $db->where('id', $id);
+            $update = $db->update('property_booking', $data);
+
+            if ($update) {
+                $_SESSION['success'] = "Booking updated successfully!";
+                header("Location: property_booking_list.php");
+                exit();
+            } else {
+                $_SESSION['failure'] = "Update failed: " . $db->getLastError();
+            }
         } else {
-            $_SESSION['failure'] = "Insert failed: " . $db->getLastError();
+            $lastBooking = $db->orderBy("id", "desc")->getOne("property_booking", "booking_id");
+            $lastIdNumber = 0;
+            if ($lastBooking && preg_match('/SSP(\d+)/', $lastBooking['booking_id'], $matches)) {
+                $lastIdNumber = (int)$matches[1];
+            }
+            $newBookingId = 'SSP' . str_pad($lastIdNumber + 1, 6, '0', STR_PAD_LEFT);
+            $data['booking_id'] = $newBookingId;
+
+            $insert = $db->insert('property_booking', $data);
+
+            if ($insert) {
+                $_SESSION['success'] = "Booking added successfully!";
+                header("Location: property_booking_list.php");
+                exit();
+            } else {
+                $_SESSION['failure'] = "Insert failed: " . $db->getLastError();
+            }
         }
     }
 }
@@ -166,9 +231,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <!-- Warning message -->
                 <div class="col-12 mb-3">
-                    <span id="room-warning" class="badge bg-danger text-wrap fs-6" style="display:none;">
-                        Room allocation exceeds available rooms!
-                    </span>
+                    <div id="room-warning" class="alert alert-danger py-2 px-3 mb-2" style="display:none;"></div>
+                    <div id="room-availability-info" class="alert alert-info py-2 px-3 mb-0" style="display:none;"></div>
                 </div>
 
                 <!-- Rooming Section -->
@@ -206,8 +270,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             ['booking_token', 'Booking Token'],
                             ['total_amount', 'Total Amount', true],
+                            ['final_total', 'Final Total', true],
                             ['total_pax', 'Total Guests', true],
-                            ['due_amount', 'Due Amount', true],
+                            ['due_amount', 'Due Amount'],
                         ];
 
                         foreach ($fields as $field) {
@@ -252,6 +317,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label>Total Rooms <span class="badge bg-secondary">Auto</span></label>
                             <input type="number" name="no_of_rooms" id="no_of_rooms" class="form-control bg-light" readonly
                                    value="<?= $booking['no_of_rooms'] ?? 0 ?>" />
+                            <small class="text-muted d-block mt-1">Rooms are calculated from room counts above.</small>
                         </div>
                         <div class="col-md-3">
                             <label>Total Guests <span class="badge bg-info">Auto</span></label>
@@ -327,7 +393,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label>Final Total <span class="badge bg-success">Auto</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text">₹</span>
-                                    <input type="number" name="final_total" id="final_total"
+                                    <input type="number" id="final_total_display"
                                            class="form-control bg-light fw-bold" readonly
                                            value="<?= $booking['final_total'] ?? 0 ?>" />
                                 </div>
@@ -395,6 +461,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!-- JS -->
 <script>
+    const currentBookingId = <?= json_encode($id ?: '') ?>;
+
     // Function to disable past dates in date inputs
     function disablePastDates() {
         const today = new Date().toISOString().split('T')[0];
@@ -416,25 +484,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    function checkRoomAvailability() {
-        const maxRooms = parseInt(document.getElementById('property_id')?.selectedOptions[0]?.dataset.roomCount || 0);
-        const names = ['double_room_count', 'child_no_bed_count', 'single_room_count', 'extra_bed_count'];
-        let total = 0;
-        names.forEach(name => total += parseInt(document.querySelector(`[name="${name}"]`)?.value || 0));
+    async function checkRoomAvailability() {
+        const propertySelect = document.getElementById('property_id');
+        const checkIn = document.querySelector('input[name="check_in_date"]')?.value;
+        const checkOut = document.querySelector('input[name="check_out_date"]')?.value;
+        const requested = parseInt(document.querySelector('[name="no_of_rooms"]')?.value || 0, 10) || 0;
         const warning = document.getElementById('room-warning');
+        const info = document.getElementById('room-availability-info');
         const submitBtn = document.querySelector('button[type="submit"]');
-        if (total > maxRooms) {
-            warning.style.display = 'block';
-            submitBtn.disabled = true;
-        } else {
+
+        if (!propertySelect?.value || !checkIn || !checkOut) {
             warning.style.display = 'none';
+            info.style.display = 'block';
+            info.classList.remove('alert-danger');
+            info.classList.add('alert-info');
+            info.textContent = 'Select property, check-in date, and check-out date to see availability.';
+            submitBtn.disabled = false;
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('property_id', propertySelect.value);
+        formData.append('check_in_date', checkIn);
+        formData.append('check_out_date', checkOut);
+        if (currentBookingId) formData.append('booking_id', currentBookingId);
+
+        try {
+            const response = await fetch('ajax/property_room_availability.php', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+            });
+            const data = await response.json();
+            const available = parseInt(data.available_rooms || 0, 10);
+            const booked = parseInt(data.booked_rooms || 0, 10);
+            const total = parseInt(data.total_rooms || 0, 10);
+
+            info.style.display = 'block';
+            info.classList.remove('alert-danger');
+            info.classList.add('alert-info');
+            info.textContent = `Total rooms: ${total} | Booked: ${booked} | Available: ${available} | Requested: ${requested}`;
+
+            if (requested > available) {
+                warning.style.display = 'block';
+                warning.textContent = `Only ${available} room(s) available for the selected dates.`;
+                submitBtn.disabled = true;
+            } else {
+                warning.style.display = 'none';
+                warning.textContent = '';
+                submitBtn.disabled = false;
+            }
+        } catch (error) {
+            warning.style.display = 'block';
+            warning.textContent = 'Unable to check room availability right now.';
             submitBtn.disabled = false;
         }
     }
 
     function calculateTotals() {
         const get = name => parseFloat(document.querySelector(`[name="${name}"]`)?.value) || 0;
-        const set = (name, value) => document.querySelector(`[name="${name}"]`).value = value.toFixed(2);
+        const set = (name, value) => {
+            const el = document.querySelector(`[name="${name}"]`);
+             if (el && document.activeElement !== el) el.value = value.toFixed(2);
+        }
         const totals = {
             double: get('double_room_count') * get('double_room_price'),
             child: get('child_no_bed_count') * get('child_no_bed_price'),
@@ -467,16 +579,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             calculateNights();
+            checkRoomAvailability();
         });
 
         document.querySelector('input[name="check_out_date"]').addEventListener('change', function() {
             calculateNights();
+            checkRoomAvailability();
         });
 
         // Existing listeners
         document.querySelectorAll('input, select').forEach(input => {
             if (!['check_in_date', 'check_out_date'].includes(input.name)) {
                 input.addEventListener('input', () => {
+                    calculateTotals();
+                    checkRoomAvailability();
+                });
+                input.addEventListener('change', () => {
                     calculateTotals();
                     checkRoomAvailability();
                 });
@@ -526,7 +644,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             setRo('cnb_display', cnb);
             setRo('eb_display',  eb);
             setRo('sgl_display', sgl);
-            setRo('no_of_rooms', dbl + cnb + eb + sgl);
+            setRo('no_of_rooms', dbl + sgl);
             // Total Guests as integer
             const paxEl = document.getElementById('total_pax');
             if (paxEl) paxEl.value = Math.round((dbl * 2) + sgl + eb + cnb);
@@ -544,17 +662,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const discAmt = totalAmt * (discPct / 100);
             const discEl = document.getElementById('discount_amount');
             if (discEl) discEl.value = discAmt.toFixed(2);
-            // final total
-            const finalEl = document.getElementById('final_total');
-            if (finalEl) finalEl.value = Math.max(0, totalAmt + svcTotal - discAmt).toFixed(2);
+            // final total calculation
+            const finalVal = Math.max(0, totalAmt + svcTotal - discAmt);
+            
+            // Update Final Total Input in Rooming Section
+            const finalInput = document.querySelector('input[name="final_total"]');
+            if (finalInput) finalInput.value = finalVal.toFixed(2);
+            
+            // Update Final Total Display in Services Section
+            const finalDisplay = document.getElementById('final_total_display');
+            if (finalDisplay) finalDisplay.value = finalVal.toFixed(2);
+
             // due amount
             const dueEl = document.querySelector('[name="due_amount"]');
             const tokenEl = parseFloat(document.querySelector('[name="booking_token"]')?.value) || 0;
-            if (dueEl) dueEl.value = Math.max(0, totalAmt + svcTotal - discAmt - tokenEl).toFixed(2);
+            
+            // If user is NOT editing Due Amount, update it based on Token
+            if (dueEl && document.activeElement !== dueEl) {
+                dueEl.value = Math.max(0, finalVal - tokenEl).toFixed(2);
+            }
         }
         // Hook room inputs to also sync summary
         document.querySelectorAll('input.room-input').forEach(el => el.addEventListener('input', syncRoomSummary));
         document.querySelector('[name="discount_percent"]')?.addEventListener('input', syncRoomSummary);
+        document.getElementById('property_id')?.addEventListener('change', checkRoomAvailability);
+        
+        // ── NEW: Reverse calculation Due Amount -> Token ──
+        const dueInput = document.querySelector('[name="due_amount"]');
+        if (dueInput) {
+            dueInput.addEventListener('input', function() {
+                const finalAmt = parseFloat(document.querySelector('[name="final_total"]')?.value) || 0;
+                const dueAmt = parseFloat(this.value) || 0;
+                // Token = Final - Due
+                const tokenAmt = Math.max(0, finalAmt - dueAmt);
+                const tokenInput = document.querySelector('[name="booking_token"]');
+                if (tokenInput) tokenInput.value = tokenAmt.toFixed(2);
+            });
+        }
+        
+        document.querySelector('form')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = this;
+            checkRoomAvailability().then(() => {
+                if (!document.querySelector('button[type="submit"]').disabled) {
+                    form.submit();
+                }
+            });
+        });
+
         syncRoomSummary();
 
         // ── NEW: add/remove service rows ──
