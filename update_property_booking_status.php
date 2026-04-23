@@ -2,6 +2,7 @@
 session_start();
 require_once 'config/config.php';
 require_once BASE_PATH . '/includes/auth_validate.php';
+require_once __DIR__ . '/helpers/property_booking_invoice_mailer.php';
 
 header('Content-Type: application/json');
 
@@ -21,10 +22,25 @@ if (!in_array($status, $allowedStatuses, true)) {
 
 $db = getDbInstance();
 $db->where('id', $bookingId);
+$currentBooking = $db->getOne('property_booking', ['id', 'status']);
+
+$previousStatus = $currentBooking['status'] ?? '';
+$db->where('id', $bookingId);
 $updated = $db->update('property_booking', ['status' => $status]);
 
 if ($updated) {
-    echo json_encode(['success' => true, 'message' => 'Status updated successfully']);
+    $message = 'Status updated successfully';
+
+    if ($status === 'Confirmed' && $previousStatus !== 'Confirmed') {
+        $emailResult = sendPropertyBookingInvoiceEmail($bookingId);
+        if (!empty($emailResult['success'])) {
+            $message .= ' and invoice email sent automatically';
+        } else {
+            $message .= '. Invoice email failed: ' . ($emailResult['message'] ?? 'Unknown error');
+        }
+    }
+
+    echo json_encode(['success' => true, 'message' => $message]);
 } else {
     echo json_encode(['success' => false, 'message' => 'Failed to update status']);
 }

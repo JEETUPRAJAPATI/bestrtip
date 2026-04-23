@@ -56,6 +56,8 @@ $hotelName = htmlspecialchars($booking['hotel_name'] ?? 'Saser Scenic Pangong');
 $dueAmount = (float)($booking['due_amount'] ?? 0);
 $finalTotal = (float)($booking['final_total'] ?? 0);
 $tokenPaid = (float)($booking['booking_token'] ?? 0);
+$tokenPaidPct = $finalTotal > 0 ? min(100, max(0, ($tokenPaid / $finalTotal) * 100)) : 0;
+$dueAmountPct = $finalTotal > 0 ? min(100, max(0, ($dueAmount / $finalTotal) * 100)) : 0;
 $paymentUrl = BASE_URL . '/payment_terms.php?crm=' . urlencode(encryptId($booking['id']));
 
 $mail = new PHPMailer();
@@ -83,9 +85,9 @@ $mail->Body = '
         <p>Dear ' . $guestName . ',</p>
         <p>This is a friendly reminder for your pending payment at <strong>' . $hotelName . '</strong>.</p>
         <p><strong>Booking Ref:</strong> ' . $bookingRef . '<br>
-        <strong>Final Total:</strong> ₹' . number_format($finalTotal, 2) . '<br>
-        <strong>Token Paid:</strong> ₹' . number_format($tokenPaid, 2) . '<br>
-        <strong>Pending Amount:</strong> ₹' . number_format($dueAmount, 2) . '</p>
+        <strong>Final Total:</strong> ₹' . number_format($finalTotal, 2) . ' (100%)<br>
+        <strong>Token Paid:</strong> ₹' . number_format($tokenPaid, 2) . ' (' . number_format($tokenPaidPct, 2) . '%)<br>
+        <strong>Pending Amount:</strong> ₹' . number_format($dueAmount, 2) . ' (' . number_format($dueAmountPct, 2) . '%)</p>
         <p>Please complete the remaining payment at your earliest convenience.</p>
         <p><a href="' . $paymentUrl . '" style="display:inline-block;background:#b19470;color:#fff;padding:10px 16px;text-decoration:none;border-radius:8px;">Open Payment Details</a></p>
         <p>Regards,<br>Ladakh DMC</p>

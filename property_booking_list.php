@@ -22,8 +22,9 @@ $guest_name = $_GET['guest_name'] ?? '';
 $booking_year = $_GET['booking_year'] ?? '';
 $property_id = $_GET['property_id'] ?? '';
 $booking_month = $_GET['booking_month'] ?? '';
+$booking_timeline = $_GET['booking_timeline'] ?? '';
 
-function applyPropertyBookingFilters($db, $search_string, $filter_col, $status, $guest_name, $property_id, $booking_year, $booking_month, $start_date, $end_date)
+function applyPropertyBookingFilters($db, $search_string, $filter_col, $status, $guest_name, $property_id, $booking_year, $booking_month, $start_date, $end_date, $booking_timeline)
 {
     if ($search_string && !empty($filter_col)) {
         $db->where($filter_col, '%' . $search_string . '%', 'LIKE');
@@ -57,6 +58,19 @@ function applyPropertyBookingFilters($db, $search_string, $filter_col, $status, 
         $db->where('pb.check_in_date', $start_date, '>=');
     } elseif (!empty($end_date)) {
         $db->where('pb.check_in_date', $end_date, '<=');
+    }
+
+    if (!empty($booking_timeline)) {
+        $today = date('Y-m-d');
+        if ($booking_timeline === 'recent') {
+            $recentStart = date('Y-m-d', strtotime('-7 days'));
+            $recentEnd = date('Y-m-d', strtotime('+7 days'));
+            $db->where('pb.check_in_date', [$recentStart, $recentEnd], 'BETWEEN');
+        } elseif ($booking_timeline === 'past') {
+            $db->where('pb.check_out_date', $today, '<');
+        } elseif ($booking_timeline === 'upcoming') {
+            $db->where('pb.check_in_date', $today, '>');
+        }
     }
 }
 
@@ -94,12 +108,12 @@ $select = [
 $db->join('properties p', 'pb.property_id = p.id', 'LEFT');
 $db->pageLimit = PAGE_LIMIT;
 
-applyPropertyBookingFilters($db, $search_string, $filter_col, $status, $guest_name, $property_id, $booking_year, $booking_month, $start_date, $end_date);
+applyPropertyBookingFilters($db, $search_string, $filter_col, $status, $guest_name, $property_id, $booking_year, $booking_month, $start_date, $end_date, $booking_timeline);
 
 
 // Filter summary totals
 $summaryDb = getDbInstance();
-applyPropertyBookingFilters($summaryDb, $search_string, $filter_col, $status, $guest_name, $property_id, $booking_year, $booking_month, $start_date, $end_date);
+applyPropertyBookingFilters($summaryDb, $search_string, $filter_col, $status, $guest_name, $property_id, $booking_year, $booking_month, $start_date, $end_date, $booking_timeline);
 $summaryRows = $summaryDb->arraybuilder()->get('property_booking pb', null, [
     'pb.no_of_rooms',
     'pb.status',
@@ -194,7 +208,8 @@ include BASE_PATH . '/includes/header.php';
     }
 
     .property-filter-select {
-        min-width: 260px;
+        width: 100%;
+        min-width: 0;
     }
 
     .actions-column {
@@ -263,7 +278,7 @@ include BASE_PATH . '/includes/header.php';
                                 <label class="form-label">Guest Name</label>
                                 <input type="text" class="form-control" name="guest_name" value="<?= $guest_name ?>">
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-2 col-lg-2">
                                 <label class="form-label">Year</label>
                                 <select class="form-select" name="booking_year">
                                     <option value="">All Years</option>
@@ -276,7 +291,7 @@ include BASE_PATH . '/includes/header.php';
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-2 col-lg-2">
                                 <label class="form-label">Month</label>
                                 <select class="form-select" name="booking_month">
                                     <option value="">All Months</option>
@@ -285,7 +300,7 @@ include BASE_PATH . '/includes/header.php';
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-4 col-lg-4">
                                 <label class="form-label">Property</label>
                                 <select class="form-select property-filter-select" name="property_id">
                                     <option value="">All Properties</option>
@@ -294,6 +309,15 @@ include BASE_PATH . '/includes/header.php';
                                             <?= xss_clean($property['hotel_name']) ?>
                                         </option>
                                     <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-md-4 col-lg-4">
+                                <label class="form-label">Booking Type</label>
+                                <select class="form-select" name="booking_timeline" id="bookingTimeline">
+                                    <option value="">All</option>
+                                    <option value="recent" <?= ($booking_timeline === 'recent') ? 'selected' : '' ?>>Recent Booking</option>
+                                    <option value="past" <?= ($booking_timeline === 'past') ? 'selected' : '' ?>>Past Booking</option>
+                                    <option value="upcoming" <?= ($booking_timeline === 'upcoming') ? 'selected' : '' ?>>Upcoming Booking</option>
                                 </select>
                             </div>
                             <div class="col-md-12 d-flex justify-content-between align-items-end">
@@ -470,6 +494,9 @@ include BASE_PATH . '/includes/header.php';
                                                 <a class="btn btn-sm btn-warning" href="add_property_booking.php?crm=<?= encryptId($row['id']) ?>" title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
+                                                <a class="btn btn-sm btn-info" href="send_booking_email.php?crm=<?= encryptId($row['id']) ?>" title="Send Email">
+                                                    <i class="fas fa-envelope"></i>
+                                                </a>
                                                 <?php if (($row['status'] ?? '') === 'Confirmed'): ?>
                                                     <a class="btn btn-sm btn-info" href="send_booking_invoice.php?crm=<?= encryptId($row['id']) ?>" title="Send Invoice">
                                                         <i class="fas fa-file-invoice"></i>
@@ -515,6 +542,13 @@ include BASE_PATH . '/includes/header.php';
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    const bookingTimeline = document.getElementById('bookingTimeline');
+    if (bookingTimeline && bookingTimeline.form) {
+        bookingTimeline.addEventListener('change', function() {
+            bookingTimeline.form.submit();
+        });
+    }
+
     document.querySelectorAll('.status-select').forEach(select => {
         select.addEventListener('change', async function () {
             const bookingId = this.dataset.bookingId;
@@ -535,6 +569,9 @@ include BASE_PATH . '/includes/header.php';
                     return;
                 }
 
+                if (data.message) {
+                    alert(data.message);
+                }
                 window.location.reload();
             } catch (error) {
                 alert('Unable to update booking status');

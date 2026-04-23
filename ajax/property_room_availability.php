@@ -17,6 +17,7 @@ if (!$propertyId || empty($checkInDate) || empty($checkOutDate)) {
         'total_rooms' => 0,
         'booked_rooms' => 0,
         'available_rooms' => 0,
+        'booking_history' => [],
     ]);
     exit;
 }
@@ -31,14 +32,16 @@ if (!$property) {
         'total_rooms' => 0,
         'booked_rooms' => 0,
         'available_rooms' => 0,
+        'booking_history' => [],
     ]);
     exit;
 }
 
 $db->where('property_id', $propertyId);
 $db->where('status', ['Confirmed', 'Hold'], 'IN');
-$db->where('check_in_date', $checkOutDate, '<=');
-$db->where('check_out_date', $checkInDate, '>=');
+// Hotel-style overlap: checkout date is non-occupied (exclusive boundary)
+$db->where('check_in_date', $checkOutDate, '<');
+$db->where('check_out_date', $checkInDate, '>');
 
 if (!empty($excludeBookingId)) {
     $db->where('id', $excludeBookingId, '!=');
@@ -48,10 +51,50 @@ $bookedRooms = (int)$db->getValue('property_booking', 'COALESCE(SUM(no_of_rooms)
 $totalRooms = (int)($property['no_of_rooms'] ?? 0);
 $availableRooms = max(0, $totalRooms - $bookedRooms);
 
+$historyDb = getDbInstance();
+$historyDb->where('property_id', $propertyId);
+$historyDb->where('status', ['Confirmed', 'Hold', 'Enquiry'], 'IN');
+$historyDb->where('check_in_date', $checkOutDate, '<');
+$historyDb->where('check_out_date', $checkInDate, '>');
+if (!empty($excludeBookingId)) {
+    $historyDb->where('id', $excludeBookingId, '!=');
+}
+$historyDb->orderBy('check_in_date', 'ASC');
+$historyRows = $historyDb->get('property_booking', null, [
+    'booking_id',
+    'guest_name',
+    'check_in_date',
+    'check_out_date',
+    'no_of_rooms',
+    'single_room_count',
+    'double_room_count',
+    'status',
+]);
+
+$bookingHistory = [];
+if (is_array($historyRows)) {
+    foreach ($historyRows as $row) {
+        $roomsCount = (int)($row['no_of_rooms'] ?? 0);
+        if ($roomsCount <= 0) {
+            $roomsCount = (int)($row['single_room_count'] ?? 0) + (int)($row['double_room_count'] ?? 0);
+        }
+
+        $bookingHistory[] = [
+            'booking_id' => $row['booking_id'] ?? '',
+            'guest_name' => $row['guest_name'] ?? '',
+            'check_in_date' => !empty($row['check_in_date']) ? date('d-m-Y', strtotime($row['check_in_date'])) : '',
+            'check_out_date' => !empty($row['check_out_date']) ? date('d-m-Y', strtotime($row['check_out_date'])) : '',
+            'no_of_rooms' => $roomsCount,
+            'status' => $row['status'] ?? '',
+        ];
+    }
+}
+
 echo json_encode([
     'success' => true,
     'message' => 'Availability calculated successfully.',
     'total_rooms' => $totalRooms,
     'booked_rooms' => $bookedRooms,
     'available_rooms' => $availableRooms,
+    'booking_history' => $bookingHistory,
 ]);

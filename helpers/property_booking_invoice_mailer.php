@@ -1,90 +1,80 @@
 <?php
-session_start();
-require_once 'config/config.php';
-require_once BASE_PATH . '/Dompdf/vendor/autoload.php';
-require_once __DIR__ . '/helpers/vendor/phpmailer/phpmailer/src/PHPMailer.php';
-require_once __DIR__ . '/helpers/vendor/phpmailer/phpmailer/src/SMTP.php';
-require_once __DIR__ . '/helpers/vendor/phpmailer/phpmailer/src/Exception.php';
 
-use Dompdf\Dompdf;
-use Dompdf\Options;
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+if (!function_exists('sendPropertyBookingInvoiceEmail')) {
+    function sendPropertyBookingInvoiceEmail(int $bookingId): array
+    {
+        require_once __DIR__ . '/../config/config.php';
+        require_once BASE_PATH . '/Dompdf/vendor/autoload.php';
+        require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/PHPMailer.php';
+        require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/SMTP.php';
+        require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/Exception.php';
 
-$id = isset($_GET['crm']) && !empty($_GET['crm']) ? decryptId($_GET['crm']) : '';
+        $db = getDbInstance();
+        $db->join('properties p', 'pb.property_id = p.id', 'LEFT');
+        $db->where('pb.id', $bookingId);
+        $booking = $db->getOne('property_booking pb', [
+            'pb.id', 'pb.booking_id', 'pb.guest_name', 'pb.guest_email', 'pb.agent_email', 'pb.guest_whatsapp',
+            'pb.check_in_date', 'pb.check_out_date', 'pb.no_of_nights', 'pb.meal_plan',
+            'pb.double_room_count', 'pb.single_room_count', 'pb.extra_bed_count', 'pb.child_no_bed_count',
+            'pb.total_pax', 'pb.total_amount', 'pb.extra_services', 'pb.extra_services_total',
+            'pb.discount_percent', 'pb.discount_amount', 'pb.final_total', 'pb.booking_token', 'pb.due_amount',
+            'pb.status', 'p.hotel_name', 'p.address'
+        ]);
 
-if (!$id || !ctype_digit((string)$id)) {
-    $_SESSION['failure'] = 'Invalid booking ID.';
-    header('Location: property_booking_list.php');
-    exit;
-}
-
-$db = getDbInstance();
-$db->join('properties p', 'pb.property_id = p.id', 'LEFT');
-$db->where('pb.id', (int)$id);
-$booking = $db->getOne('property_booking pb', [
-    'pb.id', 'pb.booking_id', 'pb.guest_name', 'pb.guest_email', 'pb.guest_whatsapp',
-    'pb.check_in_date', 'pb.check_out_date', 'pb.no_of_nights', 'pb.meal_plan',
-    'pb.double_room_count', 'pb.single_room_count', 'pb.extra_bed_count', 'pb.child_no_bed_count',
-    'pb.total_pax', 'pb.total_amount', 'pb.extra_services', 'pb.extra_services_total',
-    'pb.discount_percent', 'pb.discount_amount', 'pb.final_total', 'pb.booking_token', 'pb.due_amount',
-    'pb.status', 'p.hotel_name', 'p.address'
-]);
-
-if (!$booking) {
-    $_SESSION['failure'] = 'Booking not found.';
-    header('Location: property_booking_list.php');
-    exit;
-}
-
-$guestEmail = $booking['guest_email'] ?? '';
-$agentEmail = $booking['agent_email'] ?? '';
-if (!$guestEmail && !$agentEmail) {
-    $_SESSION['failure'] = 'No email address available to send.';
-    header('Location: property_booking_list.php');
-    exit;
-}
-
-$services = [];
-$servicesTotal = 0;
-if (!empty($booking['extra_services'])) {
-    $decoded = json_decode($booking['extra_services'], true);
-    if (is_array($decoded)) {
-        foreach ($decoded as $svc) {
-            $svcName = htmlspecialchars($svc['name'] ?? 'Service');
-            $svcPrice = (float)($svc['price'] ?? 0);
-            $servicesTotal += $svcPrice;
-            $services[] = ['name' => $svcName, 'price' => $svcPrice];
+        if (!$booking) {
+            return ['success' => false, 'message' => 'Booking not found.'];
         }
-    }
-}
-$storedServicesTotal = (float)($booking['extra_services_total'] ?? 0);
-if ($storedServicesTotal > 0) {
-    $servicesTotal = $storedServicesTotal;
-}
 
-$baseTotal = (float)($booking['total_amount'] ?? 0);
-$discountPct = (float)($booking['discount_percent'] ?? 0);
-$discountAmount = (float)($booking['discount_amount'] ?? 0);
-if ($discountAmount <= 0 && $discountPct > 0) {
-    $discountAmount = $baseTotal * ($discountPct / 100);
-}
-$finalTotal = max(0, $baseTotal + $servicesTotal - $discountAmount);
-$tokenPaid = (float)($booking['booking_token'] ?? 0);
-$dueAmount = max(0, $finalTotal - $tokenPaid);
-$nights = max(1, (int)($booking['no_of_nights'] ?? 1));
-$perNight = $finalTotal / $nights;
+        $guestEmail = $booking['guest_email'] ?? '';
+        $agentEmail = $booking['agent_email'] ?? '';
+        if (!$guestEmail && !$agentEmail) {
+            return ['success' => false, 'message' => 'No email address available to send.'];
+        }
 
-$serviceRows = '';
-if (!empty($services)) {
-    foreach ($services as $svc) {
-        $serviceRows .= '<tr><td style="padding:6px 8px;border:1px solid #e6e2dc;">' . $svc['name'] . '</td><td style="padding:6px 8px;border:1px solid #e6e2dc;text-align:right;">₹' . number_format($svc['price'], 2) . '</td></tr>';
-    }
-} else {
-    $serviceRows = '<tr><td colspan="2" style="padding:6px 8px;border:1px solid #e6e2dc;">No addon services</td></tr>';
-}
+        $services = [];
+        $servicesTotal = 0;
+        if (!empty($booking['extra_services'])) {
+            $decoded = json_decode($booking['extra_services'], true);
+            if (is_array($decoded)) {
+                foreach ($decoded as $svc) {
+                    $svcName = htmlspecialchars($svc['name'] ?? 'Service');
+                    $svcPrice = (float)($svc['price'] ?? 0);
+                    $servicesTotal += $svcPrice;
+                    $services[] = ['name' => $svcName, 'price' => $svcPrice];
+                }
+            }
+        }
 
-$html = '
+        $storedServicesTotal = (float)($booking['extra_services_total'] ?? 0);
+        if ($storedServicesTotal > 0) {
+            $servicesTotal = $storedServicesTotal;
+        }
+
+        $baseTotal = (float)($booking['total_amount'] ?? 0);
+        $discountPct = (float)($booking['discount_percent'] ?? 0);
+        $discountAmount = (float)($booking['discount_amount'] ?? 0);
+        if ($discountAmount <= 0 && $discountPct > 0) {
+            $discountAmount = $baseTotal * ($discountPct / 100);
+        }
+        $finalTotal = max(0, $baseTotal + $servicesTotal - $discountAmount);
+        $tokenPaid = (float)($booking['booking_token'] ?? 0);
+        $dueAmount = max(0, $finalTotal - $tokenPaid);
+        $nights = max(1, (int)($booking['no_of_nights'] ?? 1));
+        $perNight = $finalTotal / $nights;
+
+        $serviceRows = '';
+        if (!empty($services)) {
+            foreach ($services as $svc) {
+                $serviceRows .= '<tr><td style="padding:6px 8px;border:1px solid #e6e2dc;">' . $svc['name'] . '</td><td style="padding:6px 8px;border:1px solid #e6e2dc;text-align:right;">₹' . number_format($svc['price'], 2) . '</td></tr>';
+            }
+        } else {
+            $serviceRows = '<tr><td colspan="2" style="padding:6px 8px;border:1px solid #e6e2dc;">No addon services</td></tr>';
+        }
+
+        $checkIn = !empty($booking['check_in_date']) ? date('d M Y', strtotime($booking['check_in_date'])) : '-';
+        $checkOut = !empty($booking['check_out_date']) ? date('d M Y', strtotime($booking['check_out_date'])) : '-';
+
+        $html = '
 <!DOCTYPE html>
 <html>
 <head>
@@ -144,8 +134,8 @@ $html = '
             <td style="width:50%; padding-left:6px; vertical-align:top;">
                 <div class="box">
                     <div style="font-size:12px; font-weight:700; color:#8f775a; margin-bottom:4px;">Booking Snapshot</div>
-                    <div>Check In: ' . (!empty($booking['check_in_date']) ? date('d M Y', strtotime($booking['check_in_date'])) : '-') . '</div>
-                    <div>Check Out: ' . (!empty($booking['check_out_date']) ? date('d M Y', strtotime($booking['check_out_date'])) : '-') . '</div>
+                    <div>Check In: ' . $checkIn . '</div>
+                    <div>Check Out: ' . $checkOut . '</div>
                     <div>Rate / Night: ₹' . number_format($perNight, 2) . '</div>
                 </div>
             </td>
@@ -156,8 +146,8 @@ $html = '
     <table class="grid">
         <tr><td class="label">Property</td><td>' . htmlspecialchars($booking['hotel_name'] ?? '-') . '</td></tr>
         <tr><td class="label">Address</td><td>' . htmlspecialchars($booking['address'] ?? '-') . '</td></tr>
-        <tr><td class="label">Check In</td><td>' . (!empty($booking['check_in_date']) ? date('d M Y', strtotime($booking['check_in_date'])) : '-') . '</td></tr>
-        <tr><td class="label">Check Out</td><td>' . (!empty($booking['check_out_date']) ? date('d M Y', strtotime($booking['check_out_date'])) : '-') . '</td></tr>
+        <tr><td class="label">Check In</td><td>' . $checkIn . '</td></tr>
+        <tr><td class="label">Check Out</td><td>' . $checkOut . '</td></tr>
         <tr><td class="label">Nights</td><td>' . (int)($booking['no_of_nights'] ?? 0) . '</td></tr>
         <tr><td class="label">Meal Plan</td><td>' . htmlspecialchars($booking['meal_plan'] ?? '-') . '</td></tr>
     </table>
@@ -202,53 +192,52 @@ $html = '
 
             <div class="accept-row">
                 <span class="checkbox">&#10003;</span>
-                <span class="accept-text">I have read and accept Terms & Conditions.</span>
+                <span class="accept-text">I have read and accept Terms &amp; Conditions.</span>
             </div>
         </div>
     </div>
 </body>
 </html>';
 
-$options = new Options();
-$options->set('isRemoteEnabled', true);
-$dompdf = new Dompdf($options);
-$dompdf->loadHtml($html);
-$dompdf->setPaper('A4', 'portrait');
-$dompdf->render();
+        $options = new \Dompdf\Options();
+        $options->set('isRemoteEnabled', true);
+        $dompdf = new \Dompdf\Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
 
-$tmpPdf = tempnam(sys_get_temp_dir(), 'booking_invoice_') . '.pdf';
-file_put_contents($tmpPdf, $dompdf->output());
+        $tmpPdf = tempnam(sys_get_temp_dir(), 'booking_invoice_') . '.pdf';
+        file_put_contents($tmpPdf, $dompdf->output());
 
-$mail = new PHPMailer();
-$mail->isSMTP();
-$mail->Host = 'smtp.gmail.com';
-$mail->SMTPAuth = true;
-$mail->Username = GMAIL_USER;
-$mail->Password = GMAIL_PASSWORD;
-$mail->SMTPSecure = 'tls';
-$mail->Port = 587;
-$mail->isHTML(true);
-$mail->setFrom(GMAIL_FROM, 'Ladakh DMC');
+        $mail = new \PHPMailer\PHPMailer\PHPMailer();
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = GMAIL_USER;
+        $mail->Password = GMAIL_PASSWORD;
+        $mail->SMTPSecure = 'tls';
+        $mail->Port = 587;
+        $mail->isHTML(true);
+        $mail->setFrom(GMAIL_FROM, 'Ladakh DMC');
 
-if ($guestEmail) {
-    $mail->addAddress($guestEmail);
+        if ($guestEmail) {
+            $mail->addAddress($guestEmail);
+        }
+        if ($agentEmail && $agentEmail !== $guestEmail) {
+            $mail->addAddress($agentEmail);
+        }
+
+        $mail->Subject = 'Invoice: ' . ($booking['booking_id'] ?? $booking['id']) . ' - ' . ($booking['hotel_name'] ?? 'Saser Scenic Pangong');
+        $mail->Body = '<p>Dear ' . htmlspecialchars($booking['guest_name'] ?? 'Guest') . ',</p><p>Please find attached your booking invoice.</p><p>Regards,<br>Ladakh DMC</p>';
+        $mail->addAttachment($tmpPdf, 'invoice_' . preg_replace('/[^A-Za-z0-9\-_]/', '', ($booking['booking_id'] ?? $booking['id'])) . '.pdf');
+
+        try {
+            $mail->send();
+            @unlink($tmpPdf);
+            return ['success' => true, 'message' => 'Invoice sent successfully.'];
+        } catch (\PHPMailer\PHPMailer\Exception $e) {
+            @unlink($tmpPdf);
+            return ['success' => false, 'message' => 'Invoice sending failed: ' . $mail->ErrorInfo];
+        }
+    }
 }
-if ($agentEmail && $agentEmail !== $guestEmail) {
-    $mail->addAddress($agentEmail);
-}
-
-$mail->Subject = 'Invoice: ' . ($booking['booking_id'] ?? $booking['id']) . ' - ' . ($booking['hotel_name'] ?? 'Saser Scenic Pangong');
-$mail->Body = '<p>Dear ' . htmlspecialchars($booking['guest_name'] ?? 'Guest') . ',</p><p>Please find attached your booking invoice.</p><p>Regards,<br>Ladakh DMC</p>';
-$mail->addAttachment($tmpPdf, 'invoice_' . preg_replace('/[^A-Za-z0-9\-_]/', '', ($booking['booking_id'] ?? $booking['id'])) . '.pdf');
-
-try {
-    $mail->send();
-    @unlink($tmpPdf);
-    $_SESSION['success'] = 'Invoice sent successfully.';
-} catch (Exception $e) {
-    @unlink($tmpPdf);
-    $_SESSION['failure'] = 'Invoice sending failed: ' . $mail->ErrorInfo;
-}
-
-header('Location: property_booking_list.php');
-exit;

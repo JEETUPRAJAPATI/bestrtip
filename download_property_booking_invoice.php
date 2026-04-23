@@ -120,6 +120,13 @@ $html = '
     .footer-note { margin-top: 8px; border-top: 1px dashed #d8cdbd; padding-top: 6px; color: #666; font-size: 10px; page-break-inside: avoid; }
     .no-break { page-break-inside: avoid; }
     tr { page-break-inside: avoid; }
+    .terms-page { page-break-before: always; padding-top: 4px; }
+    .terms-title { font-size: 16px; font-weight: 700; color: #8f775a; margin-bottom: 8px; }
+    .terms-box { border: 1px solid #e5dccf; border-radius: 7px; padding: 10px; }
+    .terms-line { margin-bottom: 8px; }
+    .accept-row { margin-top: 12px; border-top: 1px dashed #d8cdbd; padding-top: 10px; font-weight: 700; }
+    .checkbox { display: inline-block; width: 15px; height: 15px; line-height: 15px; text-align: center; border: 1px solid #2b2b2b; border-radius: 2px; margin-right: 7px; font-size: 12px; font-weight: 700; vertical-align: middle; }
+    .accept-text { vertical-align: middle; }
 </style>
 </head>
 <body>
@@ -199,6 +206,26 @@ $html = '
 
     <div class="footer-note">
         This is a system-generated invoice for booking confirmation and payment reference.
+    </div>
+
+    <div class="terms-page">
+        <div class="terms-title">Terms and Conditions</div>
+        <div class="terms-box">
+            <div class="terms-line">Saser Scenic Pangong is a pure vegetarian retreat, thoughtfully designed to offer a peaceful and comfortable stay amidst the breathtaking beauty of Pangong. Non-vegetarian meals may also be arranged on special request at the time of booking.</div>
+            <div class="terms-line">Guests can enjoy geyser-based hot water shower facility, with up to 25 litres of hot water provided. While we always try our best to offer hot water 24 hours, owing to the extreme weather conditions in the region, morning hot shower availability may remain limited until the end of April. Hot shower service is generally available till 12:00 AM. Whenever required, our team will be happy to arrange an alternative hot water bucket service for your comfort.</div>
+            <div class="terms-line">The property is equipped with 24-hour emergency power backup, along with central dual AC heating from 4:00 PM to 9:30 AM, and electric blankets in all rooms to ensure a warm and pleasant stay.</div>
+            <div class="terms-line">Please note that stargazing experiences are subject to weather conditions and clear sky visibility.</div>
+            <div class="terms-line">The booking amount is non-refundable for cancellations made within 15 days prior to the check-in date.</div>
+            <div class="terms-line">For cancellations due to medical reasons, a valid doctor\'s prescription or medical report issued by Leh Hospital must be provided for review.</div>
+            <div class="terms-line">Guests are requested to kindly contact our property staff, Mr. Sammer, at least 1 hour prior to arrival, so that the room can be prepared and kept ready for check-in.</div>
+            <div class="terms-line"><strong>Acceptance Note</strong></div>
+            <div class="terms-line">I hereby confirm that I have read, understood, and accepted the above terms and conditions, and I confirm my booking by paying the token amount.</div>
+
+            <div class="accept-row">
+                <span class="checkbox">&#10003;</span>
+                <span class="accept-text">I have read and accept Terms & Conditions.</span>
+            </div>
+        </div>
     </div>
 </body>
 </html>';

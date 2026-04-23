@@ -11,11 +11,29 @@ if (!empty($_GET['crm'])) {
     if (!empty($bookingId) && ctype_digit((string)$bookingId)) {
         $db = getDbInstance();
         $db->where('id', (int)$bookingId);
-        $booking = $db->getOne('property_booking', ['id', 'booking_id', 'guest_name', 'check_in_date', 'check_out_date', 'booking_token']);
+        $booking = $db->getOne('property_booking', ['id', 'booking_id', 'guest_name', 'check_in_date', 'check_out_date', 'booking_token', 'total_amount', 'final_total', 'due_amount']);
         if ($booking) {
             $bookingRef = $booking['booking_id'] ?? '';
             $guestName = $booking['guest_name'] ?? 'Guest';
         }
+    }
+}
+
+$bookingAmountValue = 0.0;
+$tokenAmountValue = 0.0;
+$pendingAmountValue = 0.0;
+$tokenPercent = 0.0;
+$pendingPercent = 0.0;
+if (!empty($booking)) {
+    $bookingAmountValue = (float)($booking['final_total'] ?? 0);
+    if ($bookingAmountValue <= 0) {
+        $bookingAmountValue = (float)($booking['total_amount'] ?? 0);
+    }
+    $tokenAmountValue = (float)($booking['booking_token'] ?? 0);
+    $pendingAmountValue = max(0, $bookingAmountValue - $tokenAmountValue);
+    if ($bookingAmountValue > 0) {
+        $tokenPercent = min(100, max(0, ($tokenAmountValue / $bookingAmountValue) * 100));
+        $pendingPercent = min(100, max(0, ($pendingAmountValue / $bookingAmountValue) * 100));
     }
 }
 ?>
@@ -79,6 +97,23 @@ if (!empty($_GET['crm'])) {
             border-radius: 12px;
             padding: 18px;
             border: 1px solid #eadfce;
+        }
+        .payment-summary-box {
+            background: #f3efe8;
+            border: 1px solid #e3d6c5;
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+        }
+        .payment-summary-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 4px 0;
+            font-size: 14px;
+        }
+        .payment-summary-row strong {
+            color: #2f2a24;
         }
         .lbl {
             color: #77624a;
@@ -202,6 +237,13 @@ I hereby confirm that I have read, understood, and accepted the above terms and 
                 <div class="row g-3">
                     <div class="col-md-6">
                         <div class="bank-box h-100">
+                            <div class="payment-summary-box">
+                                <div class="payment-summary-row">
+                                    <span>Booking Amount</span>
+                                    <strong>₹<?= number_format($bookingAmountValue, 2) ?> (100%)</strong>
+                                </div>
+                            </div>
+
                             <p class="mb-2"><strong>Dear Guest,</strong></p>
                             <p class="mb-3">Please find our bank account details below for your kind reference:</p>
 

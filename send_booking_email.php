@@ -101,10 +101,11 @@ $mail->Subject = $bookingId . " - " . $subject;
 // Hero Gallery Images
 $hero_img_1 = BASE_URL . "/assets/img/email/IMG_8132.JPEG";
 $hero_img_2 = BASE_URL . "/assets/img/email/IMG_8158.JPEG";
-$hero_img_3 = BASE_URL . "/assets/img/email/96f91e51-f56d-47f1-bb42-1f3359df9655.JPG";
+$hero_img_3 = "https://r2imghtlak.mmtcdn.com/r2-mmt-htl-image/htl-imgs/202308230727264183-9061e247-281b-490a-989b-3e39248571c3.jpg";
 $hero_img_4 = BASE_URL . "/assets/img/email/IMG_8196.jpg";
 // Replicating the Map from UI
 $map_img = BASE_URL . "/assets/img/email/map.png";
+
 
 // Icon URLs (PNGs for email support)
 $icon_wifi = "https://img.icons8.com/material-rounded/32/B19470/wifi.png";
@@ -195,6 +196,9 @@ $discount_badge = $discount_pct > 0 ? '<div style="float: right; background: #B1
 $base_total = floatval($booking['total_amount'] ?? 0);
 $final_total_calc = max(0, $base_total + $extra_services_total - $discount_amt);
 $due_amount_calc = max(0, $final_total_calc - floatval($booking['booking_token'] ?? 0));
+$token_paid_calc = floatval($booking['booking_token'] ?? 0);
+$token_paid_pct = $final_total_calc > 0 ? min(100, max(0, ($token_paid_calc / $final_total_calc) * 100)) : 0;
+$due_amount_pct = $final_total_calc > 0 ? min(100, max(0, ($due_amount_calc / $final_total_calc) * 100)) : 0;
 
 // ── NEW: Facilities & Amenities ──
 $fac_items = [
@@ -349,18 +353,8 @@ $mail->Body = '<!DOCTYPE html>
 
             <div style="background: #FDF8F4; padding: 22px; border-radius: 16px; margin-bottom: 30px;">
               <table style="width: 100%; font-size: 15px;">
-                <tr><td style="padding-bottom: 12px; color: #777;">Total Amount</td><td style="text-align: right; font-weight: 700;">₹' . number_format($booking['total_amount'], 2) . '</td></tr>
-                <tr><td style="padding-bottom: 12px; color: #777;">Addon Services Total</td><td style="text-align: right; font-weight: 700;">₹' . number_format($extra_services_total, 2) . '</td></tr>
-                <tr><td style="padding-bottom: 12px; color: #777;">Token Paid</td><td style="text-align: right; font-weight: 700; color: #28a745;">-₹' . number_format($booking['booking_token'], 2) . '</td></tr>
-                ' . $discount_display . '
-                <tr style="font-size: 18px; border-top: 1px solid #EED;">
-                  <td style="padding-top: 15px; font-weight: 700;">Final Total</td>
-                  <td style="padding-top: 15px; text-align: right; font-weight: 700; color: #B19470;">₹' . number_format($final_total_calc, 2) . '</td>
-                </tr>
-                <tr style="font-size: 18px;">
-                  <td style="padding-top: 15px; font-weight: 700;">Due Amount</td>
-                  <td style="padding-top: 15px; text-align: right; font-weight: 700; color: #B19470;">₹' . number_format($due_amount_calc, 2) . '</td>
-                </tr>
+                <tr><td style="padding-bottom: 12px; color: #777;">Booking Amount</td><td style="text-align: right; font-weight: 700;">₹' . number_format($booking['total_amount'], 2) . ' (100%)</td></tr>
+                <tr><td style="color: #777;">Token Paid</td><td style="text-align: right; font-weight: 700; color: #28a745;">₹' . number_format($token_paid_calc, 2) . ' (' . number_format($token_paid_pct, 2) . '%)</td></tr>
               </table>
             </div>
 

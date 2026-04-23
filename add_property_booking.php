@@ -2,6 +2,7 @@
 session_start();
 require_once 'config/config.php';
 require_once BASE_PATH . '/includes/auth_validate.php';
+require_once __DIR__ . '/helpers/property_booking_invoice_mailer.php';
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -25,8 +26,9 @@ function getPropertyRoomAvailability($propertyId, $checkInDate, $checkOutDate, $
 
     $db->where('property_id', (int)$propertyId);
     $db->where('status', ['Confirmed', 'Hold'], 'IN');
-    $db->where('check_in_date', $checkOutDate, '<=');
-    $db->where('check_out_date', $checkInDate, '>=');
+    // Hotel-style overlap: checkout date is non-occupied (exclusive boundary)
+    $db->where('check_in_date', $checkOutDate, '<');
+    $db->where('check_out_date', $checkInDate, '>');
 
     if (!empty($excludeBookingId)) {
         $db->where('id', (int)$excludeBookingId, '!=');
@@ -52,6 +54,51 @@ if (!empty($id)) {
     $edit = true;
     $db->where('id', $id);
     $booking = $db->getOne('property_booking');
+}
+
+$existingStatus = $booking['status'] ?? '';
+
+$tokenPercentColumnExists = false;
+$receiptAmountColumnExists = false;
+$mysqli = $db->mysqli();
+$schemaCheck = $mysqli->query("SHOW COLUMNS FROM `property_booking` LIKE 'booking_token_percent'");
+if ($schemaCheck instanceof mysqli_result && $schemaCheck->num_rows > 0) {
+    $tokenPercentColumnExists = true;
+    $schemaCheck->free();
+} else {
+    // Best-effort schema update for local deployments.
+    $mysqli->query("ALTER TABLE `property_booking` ADD COLUMN `booking_token_percent` DECIMAL(6,2) NOT NULL DEFAULT 0.00 AFTER `booking_token`");
+    $schemaCheckAfter = $mysqli->query("SHOW COLUMNS FROM `property_booking` LIKE 'booking_token_percent'");
+    if ($schemaCheckAfter instanceof mysqli_result) {
+        $tokenPercentColumnExists = $schemaCheckAfter->num_rows > 0;
+        $schemaCheckAfter->free();
+    }
+}
+
+$receiptSchemaCheck = $mysqli->query("SHOW COLUMNS FROM `property_booking` LIKE 'receipt_amount'");
+if ($receiptSchemaCheck instanceof mysqli_result && $receiptSchemaCheck->num_rows > 0) {
+    $receiptAmountColumnExists = true;
+    $receiptSchemaCheck->free();
+} else {
+    // Best-effort schema update for local deployments.
+    $mysqli->query("ALTER TABLE `property_booking` ADD COLUMN `receipt_amount` DECIMAL(10,2) NOT NULL DEFAULT 0.00 AFTER `booking_token`");
+    $receiptSchemaCheckAfter = $mysqli->query("SHOW COLUMNS FROM `property_booking` LIKE 'receipt_amount'");
+    if ($receiptSchemaCheckAfter instanceof mysqli_result) {
+        $receiptAmountColumnExists = $receiptSchemaCheckAfter->num_rows > 0;
+        $receiptSchemaCheckAfter->free();
+    }
+}
+
+if (!isset($booking['booking_token_percent'])) {
+    $baseForPercent = (float)($booking['final_total'] ?? $booking['total_amount'] ?? 0);
+    $tokenForPercent = (float)($booking['booking_token'] ?? 0);
+    $booking['booking_token_percent'] = $baseForPercent > 0
+        ? round(($tokenForPercent / $baseForPercent) * 100, 2)
+        : 0;
+}
+
+if (!isset($booking['receipt_amount'])) {
+    $booking['receipt_amount'] = 0;
 }
 
 // ── NEW: decode existing services for edit-mode pre-fill ──
@@ -86,16 +133,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data['total_amount'] = $roomTotal;
     $data['extra_services_total'] = $serviceTotal;
     $data['discount_amount'] = $discountAmount;
-    $data['final_total'] = max(0, $roomTotal + $serviceTotal - $discountAmount);
+    $receiptAmount = max(0, (float)($data['receipt_amount'] ?? 0));
+    $data['receipt_amount'] = $receiptAmount;
+    $data['final_total'] = max(0, $roomTotal + $serviceTotal - $discountAmount - $receiptAmount);
+    $tokenPercent = (float)($data['booking_token_percent'] ?? 0);
+    $tokenPercent = max(0, min(100, $tokenPercent));
+    if ($data['final_total'] > 0) {
+        $data['booking_token'] = round(($data['final_total'] * $tokenPercent) / 100, 2);
+    } else {
+        $data['booking_token'] = 0;
+    }
+    $data['booking_token_percent'] = $tokenPercent;
     $data['due_amount'] = max(0, $data['final_total'] - (float)($data['booking_token'] ?? 0));
+
+    if (!$tokenPercentColumnExists) {
+        unset($data['booking_token_percent']);
+    }
+
+    if (!$receiptAmountColumnExists) {
+        unset($data['receipt_amount']);
+    }
 
     $propertyId = (int)($data['property_id'] ?? 0);
     $checkInDate = $data['check_in_date'] ?? '';
     $checkOutDate = $data['check_out_date'] ?? '';
+
+    // Enforce nights from selected dates so 08 -> 09 is always 1 night.
+    if (!empty($checkInDate) && !empty($checkOutDate)) {
+        $inTs = strtotime($checkInDate);
+        $outTs = strtotime($checkOutDate);
+        if ($inTs !== false && $outTs !== false && $outTs > $inTs) {
+            $data['no_of_nights'] = (int)(($outTs - $inTs) / 86400);
+        }
+    }
+
     $availability = getPropertyRoomAvailability($propertyId, $checkInDate, $checkOutDate, $edit ? $id : null);
 
-    if ($propertyId && $checkInDate && $checkOutDate && $computedRooms > $availability['available_rooms']) {
-        $_SESSION['failure'] = 'Only ' . $availability['available_rooms'] . ' room(s) available for the selected property and dates.';
+    if (
+        ($propertyId && $checkInDate && $checkOutDate && $computedRooms > $availability['available_rooms'])
+        || (($data['status'] ?? '') === 'Confirmed' && $receiptAmount <= 0)
+    ) {
+        if (($data['status'] ?? '') === 'Confirmed' && $receiptAmount <= 0) {
+            $_SESSION['failure'] = 'Receipt Amount is required before confirming booking.';
+        } else {
+            $_SESSION['failure'] = 'Only ' . $availability['available_rooms'] . ' room(s) available for the selected property and dates.';
+        }
         $booking = array_merge($booking, $data);
         $edit = !empty($id);
         $existingServices = [];
@@ -140,7 +222,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $update = $db->update('property_booking', $data);
 
             if ($update) {
-                $_SESSION['success'] = "Booking updated successfully!";
+                $message = "Booking updated successfully!";
+                if (($data['status'] ?? '') === 'Confirmed' && $existingStatus !== 'Confirmed') {
+                    $emailResult = sendPropertyBookingInvoiceEmail((int)$id);
+                    $message .= !empty($emailResult['success'])
+                        ? " Invoice email sent successfully."
+                        : " Invoice email failed: " . ($emailResult['message'] ?? 'Unknown error');
+                }
+                $_SESSION['success'] = $message;
                 header("Location: property_booking_list.php");
                 exit();
             } else {
@@ -158,7 +247,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $insert = $db->insert('property_booking', $data);
 
             if ($insert) {
-                $_SESSION['success'] = "Booking added successfully!";
+                $message = "Booking added successfully!";
+                if (($data['status'] ?? '') === 'Confirmed') {
+                    $emailResult = sendPropertyBookingInvoiceEmail((int)$insert);
+                    $message .= !empty($emailResult['success'])
+                        ? " Invoice email sent successfully."
+                        : " Invoice email failed: " . ($emailResult['message'] ?? 'Unknown error');
+                }
+                $_SESSION['success'] = $message;
                 header("Location: property_booking_list.php");
                 exit();
             } else {
@@ -233,6 +329,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="col-12 mb-3">
                     <div id="room-warning" class="alert alert-danger py-2 px-3 mb-2" style="display:none;"></div>
                     <div id="room-availability-info" class="alert alert-info py-2 px-3 mb-0" style="display:none;"></div>
+                    <div id="room-booking-history" class="card border-0 mt-2" style="display:none;">
+                        <div class="card-body py-2 px-3 bg-light rounded">
+                            <div class="small fw-semibold mb-2">Booked Room History</div>
+                            <div id="room-booking-history-list" style="display:none;"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Rooming Section -->
@@ -268,7 +370,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             ['single_price', 'Single Room Price'],
                             ['single_total', 'Single Room Total', true],
 
+                            ['booking_token_percent', 'Booking Token (%)'],
                             ['booking_token', 'Booking Token'],
+                            ['receipt_amount', 'Receipt Amount'],
                             ['total_amount', 'Total Amount', true],
                             ['final_total', 'Final Total', true],
                             ['total_pax', 'Total Guests', true],
@@ -462,6 +566,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!-- JS -->
 <script>
     const currentBookingId = <?= json_encode($id ?: '') ?>;
+    let bookingHistoryOpen = false;
 
     // Function to disable past dates in date inputs
     function disablePastDates() {
@@ -487,18 +592,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     async function checkRoomAvailability() {
         const propertySelect = document.getElementById('property_id');
         const checkIn = document.querySelector('input[name="check_in_date"]')?.value;
-        const checkOut = document.querySelector('input[name="check_out_date"]')?.value;
+        const checkOutInput = document.querySelector('input[name="check_out_date"]');
+        const checkOut = checkOutInput?.value || '';
+        const nights = parseInt(document.querySelector('input[name="no_of_nights"]')?.value || 0, 10) || 0;
         const requested = parseInt(document.querySelector('[name="no_of_rooms"]')?.value || 0, 10) || 0;
         const warning = document.getElementById('room-warning');
         const info = document.getElementById('room-availability-info');
+        const historyWrap = document.getElementById('room-booking-history');
+        const historyList = document.getElementById('room-booking-history-list');
         const submitBtn = document.querySelector('button[type="submit"]');
 
-        if (!propertySelect?.value || !checkIn || !checkOut) {
+        const deriveCheckoutDate = (checkInDate, noOfNights) => {
+            if (!checkInDate || noOfNights <= 0) {
+                return '';
+            }
+            const base = new Date(checkInDate + 'T00:00:00');
+            if (Number.isNaN(base.getTime())) {
+                return '';
+            }
+            base.setDate(base.getDate() + noOfNights);
+            const y = base.getFullYear();
+            const m = String(base.getMonth() + 1).padStart(2, '0');
+            const d = String(base.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        };
+
+        const effectiveCheckOut = checkOut || deriveCheckoutDate(checkIn, nights);
+
+        if (!checkOut && effectiveCheckOut && checkOutInput) {
+            checkOutInput.value = effectiveCheckOut;
+        }
+
+        const escapeHtml = (value) => String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+
+        if (!propertySelect?.value || !checkIn || !effectiveCheckOut) {
             warning.style.display = 'none';
             info.style.display = 'block';
             info.classList.remove('alert-danger');
             info.classList.add('alert-info');
-            info.textContent = 'Select property, check-in date, and check-out date to see availability.';
+            info.textContent = 'Select property and check-in date, then set nights or check-out date to see availability.';
+            historyWrap.style.display = 'none';
+            historyList.style.display = 'none';
+            historyList.innerHTML = '';
             submitBtn.disabled = false;
             return;
         }
@@ -506,7 +646,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         const formData = new FormData();
         formData.append('property_id', propertySelect.value);
         formData.append('check_in_date', checkIn);
-        formData.append('check_out_date', checkOut);
+        formData.append('check_out_date', effectiveCheckOut);
         if (currentBookingId) formData.append('booking_id', currentBookingId);
 
         try {
@@ -519,11 +659,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const available = parseInt(data.available_rooms || 0, 10);
             const booked = parseInt(data.booked_rooms || 0, 10);
             const total = parseInt(data.total_rooms || 0, 10);
+            const bookingHistory = Array.isArray(data.booking_history) ? data.booking_history : [];
 
             info.style.display = 'block';
             info.classList.remove('alert-danger');
             info.classList.add('alert-info');
-            info.textContent = `Total rooms: ${total} | Booked: ${booked} | Available: ${available} | Requested: ${requested}`;
+            if (booked > 0 && bookingHistory.length > 0) {
+                info.innerHTML = `Total rooms: ${total} | <button type="button" id="bookedHistoryToggle" class="btn btn-link p-0 align-baseline">Booked: ${booked}</button> | Available: ${available} | Requested: ${requested}`;
+                historyWrap.style.display = 'block';
+                bookingHistoryOpen = true;
+                historyList.style.display = 'block';
+                historyList.innerHTML = `
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Booking ID</th>
+                                    <th>Guest</th>
+                                    <th>Check In</th>
+                                    <th>Check Out</th>
+                                    <th>Rooms</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${bookingHistory.map(item => `
+                                    <tr>
+                                        <td>${escapeHtml(item.booking_id || '-')}</td>
+                                        <td>${escapeHtml(item.guest_name || '-')}</td>
+                                        <td>${escapeHtml(item.check_in_date || '-')}</td>
+                                        <td>${escapeHtml(item.check_out_date || '-')}</td>
+                                        <td>${escapeHtml(item.no_of_rooms || 0)}</td>
+                                        <td>${escapeHtml(item.status || '-')}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>`;
+
+            } else {
+                info.textContent = `Total rooms: ${total} | Booked: ${booked} | Available: ${available} | Requested: ${requested}`;
+                historyWrap.style.display = 'none';
+                historyList.style.display = 'none';
+                historyList.innerHTML = '';
+                bookingHistoryOpen = false;
+            }
 
             if (requested > available) {
                 warning.style.display = 'block';
@@ -537,6 +717,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (error) {
             warning.style.display = 'block';
             warning.textContent = 'Unable to check room availability right now.';
+            historyWrap.style.display = 'none';
+            historyList.style.display = 'none';
+            historyList.innerHTML = '';
             submitBtn.disabled = false;
         }
     }
@@ -558,9 +741,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         set('single_total', totals.single);
         set('extra_bed_total', totals.extra);
         const totalAmount = Object.values(totals).reduce((a, b) => a + b, 0);
+        const serviceTotal = get('extra_services_total');
+        const discountAmount = get('discount_amount');
+        const receiptAmount = get('receipt_amount');
         const token = get('booking_token');
+        const finalAmount = Math.max(0, totalAmount + serviceTotal - discountAmount - receiptAmount);
         set('total_amount', totalAmount);
-        set('due_amount', Math.max(0, totalAmount - token));
+        set('final_total', finalAmount);
+        set('due_amount', Math.max(0, finalAmount - token));
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -584,6 +772,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         document.querySelector('input[name="check_out_date"]').addEventListener('change', function() {
             calculateNights();
+            checkRoomAvailability();
+        });
+
+        document.querySelector('input[name="no_of_nights"]').addEventListener('input', function() {
+            const checkInDate = document.querySelector('input[name="check_in_date"]')?.value;
+            const nights = parseInt(this.value || 0, 10) || 0;
+            const checkOutEl = document.querySelector('input[name="check_out_date"]');
+            if (checkOutEl && checkInDate && nights > 0) {
+                const d = new Date(checkInDate + 'T00:00:00');
+                if (!Number.isNaN(d.getTime())) {
+                    d.setDate(d.getDate() + nights);
+                    const y = d.getFullYear();
+                    const m = String(d.getMonth() + 1).padStart(2, '0');
+                    const day = String(d.getDate()).padStart(2, '0');
+                    checkOutEl.value = `${y}-${m}-${day}`;
+                }
+            }
             checkRoomAvailability();
         });
 
@@ -662,8 +867,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const discAmt = totalAmt * (discPct / 100);
             const discEl = document.getElementById('discount_amount');
             if (discEl) discEl.value = discAmt.toFixed(2);
+            const receiptAmt = parseFloat(document.querySelector('[name="receipt_amount"]')?.value) || 0;
             // final total calculation
-            const finalVal = Math.max(0, totalAmt + svcTotal - discAmt);
+            const finalVal = Math.max(0, totalAmt + svcTotal - discAmt - receiptAmt);
             
             // Update Final Total Input in Rooming Section
             const finalInput = document.querySelector('input[name="final_total"]');
@@ -675,11 +881,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // due amount
             const dueEl = document.querySelector('[name="due_amount"]');
-            const tokenEl = parseFloat(document.querySelector('[name="booking_token"]')?.value) || 0;
+            const tokenInputEl = document.querySelector('[name="booking_token"]');
+            const tokenPctInputEl = document.querySelector('[name="booking_token_percent"]');
+            const tokenEl = parseFloat(tokenInputEl?.value) || 0;
             
             // If user is NOT editing Due Amount, update it based on Token
             if (dueEl && document.activeElement !== dueEl) {
                 dueEl.value = Math.max(0, finalVal - tokenEl).toFixed(2);
+            }
+
+            if (tokenPctInputEl && document.activeElement !== tokenPctInputEl) {
+                const pct = finalVal > 0 ? (tokenEl / finalVal) * 100 : 0;
+                tokenPctInputEl.value = Math.max(0, Math.min(100, pct)).toFixed(2);
             }
         }
         // Hook room inputs to also sync summary
@@ -697,8 +910,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 const tokenAmt = Math.max(0, finalAmt - dueAmt);
                 const tokenInput = document.querySelector('[name="booking_token"]');
                 if (tokenInput) tokenInput.value = tokenAmt.toFixed(2);
+                const tokenPctInput = document.querySelector('[name="booking_token_percent"]');
+                if (tokenPctInput) {
+                    const pct = finalAmt > 0 ? (tokenAmt / finalAmt) * 100 : 0;
+                    tokenPctInput.value = Math.max(0, Math.min(100, pct)).toFixed(2);
+                }
             });
         }
+
+        const tokenPercentInput = document.querySelector('[name="booking_token_percent"]');
+        if (tokenPercentInput) {
+            tokenPercentInput.addEventListener('input', function() {
+                const finalAmt = parseFloat(document.querySelector('[name="final_total"]')?.value) || 0;
+                const pct = Math.max(0, Math.min(100, parseFloat(this.value) || 0));
+                const tokenAmt = finalAmt > 0 ? (finalAmt * pct) / 100 : 0;
+                const tokenInput = document.querySelector('[name="booking_token"]');
+                const dueInput = document.querySelector('[name="due_amount"]');
+                if (tokenInput) tokenInput.value = tokenAmt.toFixed(2);
+                if (dueInput) dueInput.value = Math.max(0, finalAmt - tokenAmt).toFixed(2);
+            });
+        }
+
+        document.querySelector('[name="status"]')?.addEventListener('change', function() {
+            if (this.value !== 'Confirmed') {
+                return;
+            }
+            const receiptAmount = parseFloat(document.querySelector('[name="receipt_amount"]')?.value) || 0;
+            if (receiptAmount <= 0) {
+                this.value = 'Enquiry';
+                alert('Receipt Amount is required before setting status to Confirmed.');
+            }
+        });
         
         document.querySelector('form')?.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -708,6 +950,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     form.submit();
                 }
             });
+        });
+
+        document.addEventListener('click', function (e) {
+            const toggle = e.target.closest('#bookedHistoryToggle');
+            if (!toggle) {
+                return;
+            }
+
+            e.preventDefault();
+            const historyList = document.getElementById('room-booking-history-list');
+            if (!historyList) {
+                return;
+            }
+
+            bookingHistoryOpen = !bookingHistoryOpen;
+            historyList.style.display = bookingHistoryOpen ? 'block' : 'none';
         });
 
         syncRoomSummary();
