@@ -14,17 +14,41 @@ if (!$page) $page = 1;
 if (!$filter_col) $filter_col = '';
 if (!$order_by) $order_by = 'desc';
 
+// Load filter dropdown data
+$filterDb = getDbInstance();
+$properties = $filterDb->orderBy('hotel_name', 'ASC')->get('properties', null, ['id', 'hotel_name']);
+
 // Additional filters
 $status = $_GET['status'] ?? '';
-$start_date = $_GET['start_date'] ?? '';
-$end_date = $_GET['end_date'] ?? '';
 $guest_name = $_GET['guest_name'] ?? '';
-$booking_year = $_GET['booking_year'] ?? '';
 $property_id = $_GET['property_id'] ?? '';
-$booking_month = $_GET['booking_month'] ?? '';
+$check_in = $_GET['check_in'] ?? '';
+$check_out = $_GET['check_out'] ?? '';
+$date_range = $_GET['date_range'] ?? '';
 $booking_timeline = $_GET['booking_timeline'] ?? '';
 
-function applyPropertyBookingFilters($db, $search_string, $filter_col, $status, $guest_name, $property_id, $booking_year, $booking_month, $start_date, $end_date, $booking_timeline)
+// Parsing Range fields
+function parseRange($range) {
+    if (empty($range)) return ['', ''];
+    $range = str_replace(['%20to%20', '+to+'], ' to ', $range);
+    if (strpos($range, ' to ') !== false) {
+        $parts = explode(' to ', $range);
+        $start_ts = strtotime(trim($parts[0]));
+        $end_ts = strtotime(trim($parts[1]));
+        return [($start_ts ? date('Y-m-d', $start_ts) : ''), ($end_ts ? date('Y-m-d', $end_ts) : '')];
+    }
+    $ts = strtotime(trim($range));
+    $date = ($ts) ? date('Y-m-d', $ts) : '';
+    return [$date, $date];
+}
+
+list($range_start, $range_end) = parseRange($date_range);
+
+
+// Property ID is empty by default (All Properties)
+
+
+function applyPropertyBookingFilters($db, $search_string, $filter_col, $status, $guest_name, $property_id, $check_in, $check_out, $range_start, $range_end, $booking_timeline)
 {
     if ($search_string && !empty($filter_col)) {
         $db->where($filter_col, '%' . $search_string . '%', 'LIKE');
@@ -42,30 +66,29 @@ function applyPropertyBookingFilters($db, $search_string, $filter_col, $status, 
         $db->where('pb.property_id', (int)$property_id);
     }
 
-    if (!empty($booking_year) && ctype_digit((string)$booking_year)) {
-        $yearStart = $booking_year . '-01-01';
-        $yearEnd = $booking_year . '-12-31';
-        $db->where('pb.check_in_date', [$yearStart, $yearEnd], 'BETWEEN');
+
+
+    if (!empty($range_start) && !empty($range_end)) {
+        $db->where('pb.check_in_date', [$range_start, $range_end], 'BETWEEN');
     }
 
-    if (!empty($booking_month) && ctype_digit((string)$booking_month)) {
-        $db->where('MONTH(pb.check_in_date)', (int)$booking_month, '=');
+    if (!empty($check_in)) {
+        $db->where('pb.check_in_date', date('Y-m-d', strtotime($check_in)));
     }
 
-    if (!empty($start_date) && !empty($end_date)) {
-        $db->where('pb.check_in_date', [$start_date, $end_date], 'BETWEEN');
-    } elseif (!empty($start_date)) {
-        $db->where('pb.check_in_date', $start_date, '>=');
-    } elseif (!empty($end_date)) {
-        $db->where('pb.check_in_date', $end_date, '<=');
+    if (!empty($check_out)) {
+        $db->where('pb.check_out_date', date('Y-m-d', strtotime($check_out)));
     }
 
     if (!empty($booking_timeline)) {
         $today = date('Y-m-d');
         if ($booking_timeline === 'recent') {
-            $recentStart = date('Y-m-d', strtotime('-7 days'));
-            $recentEnd = date('Y-m-d', strtotime('+7 days'));
-            $db->where('pb.check_in_date', [$recentStart, $recentEnd], 'BETWEEN');
+            // Only apply 'recent' if no custom date ranges are set
+            if (empty($start_date) && empty($bd_start)) {
+                $recentStart = date('Y-m-d', strtotime('-7 days'));
+                $recentEnd = date('Y-m-d', strtotime('+6 days'));
+                $db->where('pb.check_in_date', [$recentStart, $recentEnd], 'BETWEEN');
+            }
         } elseif ($booking_timeline === 'past') {
             $db->where('pb.check_out_date', $today, '<');
         } elseif ($booking_timeline === 'upcoming') {
@@ -74,10 +97,6 @@ function applyPropertyBookingFilters($db, $search_string, $filter_col, $status, 
     }
 }
 
-// Load filter dropdown data
-$filterDb = getDbInstance();
-$properties = $filterDb->orderBy('hotel_name', 'ASC')->get('properties', null, ['id', 'hotel_name']);
-$yearRows = $filterDb->rawQuery("SELECT DISTINCT YEAR(check_in_date) AS booking_year FROM property_booking WHERE check_in_date IS NOT NULL ORDER BY booking_year DESC");
 
 $db = getDbInstance();
 $select = [
@@ -108,14 +127,17 @@ $select = [
 $db->join('properties p', 'pb.property_id = p.id', 'LEFT');
 $db->pageLimit = PAGE_LIMIT;
 
-applyPropertyBookingFilters($db, $search_string, $filter_col, $status, $guest_name, $property_id, $booking_year, $booking_month, $start_date, $end_date, $booking_timeline);
+applyPropertyBookingFilters($db, $search_string, $filter_col, $status, $guest_name, $property_id, $check_in, $check_out, $range_start, $range_end, $booking_timeline);
 
 
 // Filter summary totals
 $summaryDb = getDbInstance();
-applyPropertyBookingFilters($summaryDb, $search_string, $filter_col, $status, $guest_name, $property_id, $booking_year, $booking_month, $start_date, $end_date, $booking_timeline);
+$summaryDb->join('properties p', 'pb.property_id = p.id', 'LEFT');
+applyPropertyBookingFilters($summaryDb, $search_string, $filter_col, $status, $guest_name, $property_id, $check_in, $check_out, $range_start, $range_end, $booking_timeline);
 $summaryRows = $summaryDb->arraybuilder()->get('property_booking pb', null, [
     'pb.no_of_rooms',
+    'pb.single_room_count',
+    'pb.double_room_count',
     'pb.status',
     'pb.total_amount',
     'pb.final_total',
@@ -135,7 +157,7 @@ $total_pending_summary = 0.0;
 $total_received_summary = 0.0;
 
 foreach ($summaryRows as $summaryRow) {
-    $rooms = (int)($summaryRow['no_of_rooms'] ?? 0);
+    $rooms = !empty($summaryRow['no_of_rooms']) ? (int)$summaryRow['no_of_rooms'] : ((int)$summaryRow['single_room_count'] + (int)$summaryRow['double_room_count']);
     $statusValue = $summaryRow['status'] ?? '';
     $rowAmount = (float)((float)($summaryRow['final_total'] ?? 0) > 0 ? $summaryRow['final_total'] : $summaryRow['total_amount']);
     $rowPending = (float)($summaryRow['due_amount'] ?? 0);
@@ -161,10 +183,24 @@ foreach ($summaryRows as $summaryRow) {
 if (!empty($filter_col)) {
     $db->orderBy($filter_col, $order_by);
 } else {
-    // Default smart order: today first, then recent past dates, then upcoming dates.
-    $db->orderBy('SIGN(DATEDIFF(pb.check_in_date,CURDATE()))', 'ASC', ['0', '-1', '1']);
-    $db->orderBy('ABS(DATEDIFF(pb.check_in_date,CURDATE()))', 'ASC');
-    $db->orderBy('pb.id', 'DESC');
+    if ($booking_timeline === 'recent') {
+        // Recent = latest bookings first
+        $db->orderBy('pb.created_at', 'DESC');
+        $db->orderBy('pb.id', 'DESC');
+    } elseif ($booking_timeline === 'past') {
+        // Past = most recently completed first
+        $db->orderBy('pb.check_out_date', 'DESC');
+        $db->orderBy('pb.id', 'DESC');
+    } elseif ($booking_timeline === 'upcoming') {
+        // Upcoming = nearest check-in first
+        $db->orderBy('pb.check_in_date', 'ASC');
+        $db->orderBy('pb.id', 'DESC');
+    } else {
+        // Default smart order: today first, then recent past dates, then upcoming dates.
+        $db->orderBy('SIGN(DATEDIFF(pb.check_in_date,CURDATE()))', 'ASC', ['0', '-1', '1']);
+        $db->orderBy('ABS(DATEDIFF(pb.check_in_date,CURDATE()))', 'ASC');
+        $db->orderBy('pb.id', 'DESC');
+    }
 }
 $rows = $db->arraybuilder()->paginate('property_booking pb', $page, $select);
 $total_pages = $db->totalPages;
@@ -172,6 +208,7 @@ $total_pages = $db->totalPages;
 include BASE_PATH . '/includes/header.php';
 ?>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
     @media (max-width: 768px) {
 
@@ -253,13 +290,13 @@ include BASE_PATH . '/includes/header.php';
     <div class="content-wrapper">
         <div class="container-xxl flex-grow-1 container-p-y">
             <form method="get" action="">
-                <div class="card mb-4">
+                <div class="card mb-4 shadow-sm border-0">
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-md-3">
-                                <label class="form-label">Booking Status</label>
+                                <label class="form-label fw-bold">BOOKING STATUS</label>
                                 <select class="form-select" name="status">
-                                    <option value="">All</option>
+                                    <option value="">All Statuses</option>
                                     <option value="Confirmed" <?= ($status == 'Confirmed') ? 'selected' : '' ?>>Confirmed</option>
                                     <option value="Hold" <?= ($status == 'Hold') ? 'selected' : '' ?>>Hold</option>
                                     <option value="Enquiry" <?= ($status == 'Enquiry') ? 'selected' : '' ?>>Enquiry</option>
@@ -267,68 +304,56 @@ include BASE_PATH . '/includes/header.php';
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label">Start Date</label>
-                                <input type="date" class="form-control" name="start_date" value="<?= $start_date ?>">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">End Date</label>
-                                <input type="date" class="form-control" name="end_date" value="<?= $end_date ?>">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Guest Name</label>
-                                <input type="text" class="form-control" name="guest_name" value="<?= $guest_name ?>">
-                            </div>
-                            <div class="col-md-2 col-lg-2">
-                                <label class="form-label">Year</label>
-                                <select class="form-select" name="booking_year">
-                                    <option value="">All Years</option>
-                                    <?php foreach ($yearRows as $yearRow): ?>
-                                        <?php if (!empty($yearRow['booking_year'])): ?>
-                                            <option value="<?= (int)$yearRow['booking_year'] ?>" <?= ($booking_year == $yearRow['booking_year']) ? 'selected' : '' ?>>
-                                                <?= (int)$yearRow['booking_year'] ?>
-                                            </option>
-                                        <?php endif; ?>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="col-md-2 col-lg-2">
-                                <label class="form-label">Month</label>
-                                <select class="form-select" name="booking_month">
-                                    <option value="">All Months</option>
-                                    <?php foreach ([1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April', 5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August', 9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'] as $monthNo => $monthName): ?>
-                                        <option value="<?= $monthNo ?>" <?= ($booking_month == $monthNo) ? 'selected' : '' ?>><?= $monthName ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="col-md-4 col-lg-4">
-                                <label class="form-label">Property</label>
+                                <label class="form-label fw-bold">PROPERTY</label>
                                 <select class="form-select property-filter-select" name="property_id">
                                     <option value="">All Properties</option>
-                                    <?php foreach ($properties as $property): ?>
-                                        <option value="<?= (int)$property['id'] ?>" <?= ($property_id == $property['id']) ? 'selected' : '' ?>>
-                                            <?= xss_clean($property['hotel_name']) ?>
+                                    <?php foreach ($properties as $prop): ?>
+                                        <option value="<?= $prop['id'] ?>" <?= ($property_id == $prop['id']) ? 'selected' : '' ?>>
+                                            <?= xss_clean($prop['hotel_name']) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                            <div class="col-md-4 col-lg-4">
-                                <label class="form-label">Booking Type</label>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">CHECK-IN</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                    <input type="text" class="form-control flatpickr-date" name="check_in" placeholder="Select Date" value="<?= htmlspecialchars($check_in) ?>">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">CHECK-OUT</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                    <input type="text" class="form-control flatpickr-date" name="check_out" placeholder="Select Date" value="<?= htmlspecialchars($check_out) ?>">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">DATE RANGE</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-calendar-check"></i></span>
+                                    <input type="text" class="form-control flatpickr-range" name="date_range" placeholder="Select Range" value="<?= htmlspecialchars($date_range) ?>">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">GUEST NAME</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                    <input type="text" class="form-control" name="guest_name" placeholder="Search guest..." value="<?= htmlspecialchars($_GET['guest_name'] ?? '') ?>">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">BOOKING TIMELINE</label>
                                 <select class="form-select" name="booking_timeline" id="bookingTimeline">
-                                    <option value="">All</option>
-                                    <option value="recent" <?= ($booking_timeline === 'recent') ? 'selected' : '' ?>>Recent Booking</option>
-                                    <option value="past" <?= ($booking_timeline === 'past') ? 'selected' : '' ?>>Past Booking</option>
-                                    <option value="upcoming" <?= ($booking_timeline === 'upcoming') ? 'selected' : '' ?>>Upcoming Booking</option>
+                                    <option value="">All Bookings</option>
+                                    <option value="recent" <?= ($booking_timeline === 'recent') ? 'selected' : '' ?>>Recent Bookings</option>
+                                    <option value="past" <?= ($booking_timeline === 'past') ? 'selected' : '' ?>>Past Bookings</option>
+                                    <option value="upcoming" <?= ($booking_timeline === 'upcoming') ? 'selected' : '' ?>>Upcoming Bookings</option>
                                 </select>
                             </div>
-                            <div class="col-md-12 d-flex justify-content-between align-items-end">
-                                <div>
-                                    <button type="submit" class="btn btn-primary">🔍 Filter</button>
-                                    <a href="property_booking_list.php" class="btn btn-secondary">Reset</a>
-                                </div>
-                                <div class="d-flex gap-2">
-                                    
-                                    <a href="export_booking_excel.php?<?= http_build_query($_GET) ?>" class="btn btn-success">📥 Export to Excel</a>
-                                </div>
+                            <div class="col-md-3 d-flex align-items-end gap-2">
+                                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i> Filter</button>
+                                <a href="property_booking_list.php" class="btn btn-outline-secondary w-100">Reset</a>
                             </div>
                         </div>
                     </div>
@@ -436,8 +461,9 @@ include BASE_PATH . '/includes/header.php';
                                     <th class="rooms-column">Rooms</th>
                                     <th class="agent-column">Agent</th>
                                     <th>Amount</th>
+                                    <th>Due</th>
                                     <th>Status</th>
-                                    <th class="actions-column">Actions</th>
+                                    <th class="actions-column">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -480,6 +506,12 @@ include BASE_PATH . '/includes/header.php';
                                             <?php endif; ?>
                                         </td>
                                         <td>
+                                            ₹<?= number_format($row['due_amount'] ?? 0, 2) ?>
+                                            <?php if (!empty($row['receipt_amount']) && $row['receipt_amount'] > 0): ?>
+                                                <br><small class="text-success">Paid: ₹<?= number_format($row['receipt_amount'], 2) ?></small>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
                                             <select class="form-select form-select-sm status-select"
                                                 data-booking-id="<?= (int)$row['id'] ?>">
                                                 <?php foreach (['Confirmed', 'Hold', 'Enquiry', 'Cancel'] as $statusOption): ?>
@@ -497,16 +529,12 @@ include BASE_PATH . '/includes/header.php';
                                                 <a class="btn btn-sm btn-info" href="send_booking_email.php?crm=<?= encryptId($row['id']) ?>" title="Send Email">
                                                     <i class="fas fa-envelope"></i>
                                                 </a>
-                                                <?php if (($row['status'] ?? '') === 'Confirmed'): ?>
-                                                    <a class="btn btn-sm btn-info" href="send_booking_invoice.php?crm=<?= encryptId($row['id']) ?>" title="Send Invoice">
-                                                        <i class="fas fa-file-invoice"></i>
-                                                    </a>
-                                                <?php endif; ?>
-                                                <?php if (!empty($row['due_amount']) && (float)$row['due_amount'] > 0): ?>
-                                                    <a class="btn btn-sm btn-secondary" href="send_booking_payment_reminder.php?crm=<?= encryptId($row['id']) ?>" title="Pending Payment Notify">
-                                                        <i class="fas fa-bell"></i>
-                                                    </a>
-                                                <?php endif; ?>
+                                                <a class="btn btn-sm btn-primary" href="view_property_invoice.php?crm=<?= encryptId($row['id']) ?>" target="_blank" title="View Invoice">
+                                                    <i class="fas fa-file-invoice"></i>
+                                                </a>
+                                                <a class="btn btn-sm btn-secondary" href="send_payment_reminder.php?crm=<?= encryptId($row['id']) ?>" title="Reminder">
+                                                    <i class="fas fa-bell"></i>
+                                                </a>
                                                 <a class="btn btn-sm btn-danger" href="delete_booking.php?crm=<?= encryptId($row['id']) ?>"
                                                     onclick="return confirm('Are you sure you want to delete this booking?')" title="Delete">
                                                     <i class="fas fa-trash"></i>
@@ -576,6 +604,27 @@ include BASE_PATH . '/includes/header.php';
             } catch (error) {
                 alert('Unable to update booking status');
             }
+        });
+    });
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        flatpickr(".flatpickr-date", {
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "d-m-Y",
+            allowInput: true
+        });
+
+        flatpickr(".flatpickr-range", {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "d-M-Y",
+            allowInput: true
         });
     });
 </script>

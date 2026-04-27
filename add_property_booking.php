@@ -3,6 +3,7 @@ session_start();
 require_once 'config/config.php';
 require_once BASE_PATH . '/includes/auth_validate.php';
 require_once __DIR__ . '/helpers/property_booking_invoice_mailer.php';
+require_once __DIR__ . '/helpers/property_status_mailer.php';
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -60,6 +61,7 @@ $existingStatus = $booking['status'] ?? '';
 
 $tokenPercentColumnExists = false;
 $receiptAmountColumnExists = false;
+$holdStartedAtColumnExists = false;
 $mysqli = $db->mysqli();
 $schemaCheck = $mysqli->query("SHOW COLUMNS FROM `property_booking` LIKE 'booking_token_percent'");
 if ($schemaCheck instanceof mysqli_result && $schemaCheck->num_rows > 0) {
@@ -87,6 +89,25 @@ if ($receiptSchemaCheck instanceof mysqli_result && $receiptSchemaCheck->num_row
         $receiptAmountColumnExists = $receiptSchemaCheckAfter->num_rows > 0;
         $receiptSchemaCheckAfter->free();
     }
+}
+
+$holdSchemaCheck = $mysqli->query("SHOW COLUMNS FROM `property_booking` LIKE 'hold_started_at'");
+if ($holdSchemaCheck instanceof mysqli_result && $holdSchemaCheck->num_rows > 0) {
+    $holdStartedAtColumnExists = true;
+    $holdSchemaCheck->free();
+} else {
+    // Best-effort schema update for local deployments.
+    $mysqli->query("ALTER TABLE `property_booking` ADD COLUMN `hold_started_at` DATETIME NULL DEFAULT NULL AFTER `status`");
+    $holdSchemaCheckAfter = $mysqli->query("SHOW COLUMNS FROM `property_booking` LIKE 'hold_started_at'");
+    if ($holdSchemaCheckAfter instanceof mysqli_result) {
+        $holdStartedAtColumnExists = $holdSchemaCheckAfter->num_rows > 0;
+        $holdSchemaCheckAfter->free();
+    }
+}
+
+// Backfill: older Hold bookings may have NULL hold_started_at
+if ($holdStartedAtColumnExists) {
+    $mysqli->query("UPDATE `property_booking` SET `hold_started_at` = NOW() WHERE `status` = 'Hold' AND `hold_started_at` IS NULL");
 }
 
 if (!isset($booking['booking_token_percent'])) {
@@ -135,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data['discount_amount'] = $discountAmount;
     $receiptAmount = max(0, (float)($data['receipt_amount'] ?? 0));
     $data['receipt_amount'] = $receiptAmount;
-    $data['final_total'] = max(0, $roomTotal + $serviceTotal - $discountAmount - $receiptAmount);
+    $data['final_total'] = max(0, $roomTotal + $serviceTotal - $discountAmount);
     $tokenPercent = (float)($data['booking_token_percent'] ?? 0);
     $tokenPercent = max(0, min(100, $tokenPercent));
     if ($data['final_total'] > 0) {
@@ -144,7 +165,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data['booking_token'] = 0;
     }
     $data['booking_token_percent'] = $tokenPercent;
-    $data['due_amount'] = max(0, $data['final_total'] - (float)($data['booking_token'] ?? 0));
+    $data['due_amount'] = max(0, $data['final_total'] - $receiptAmount);
+
+    // Hold timing: set start when moving into Hold; clear when leaving Hold.
+    if ($holdStartedAtColumnExists) {
+        $newStatus = $data['status'] ?? '';
+        $postedHoldStartedAt = trim((string)($data['hold_started_at'] ?? ''));
+
+        $normalizeHoldStartedAt = function (string $value): string {
+            $value = trim($value);
+            if ($value === '') {
+                return '';
+            }
+            // Accept HTML datetime-local (YYYY-MM-DDTHH:MM) or normal datetime strings.
+            $ts = strtotime(str_replace('T', ' ', $value));
+            if ($ts === false) {
+                return '';
+            }
+            return date('Y-m-d H:i:s', $ts);
+        };
+
+        if ($newStatus === 'Hold') {
+            $normalized = $normalizeHoldStartedAt($postedHoldStartedAt);
+            if ($normalized !== '') {
+                $data['hold_started_at'] = $normalized;
+            } else {
+                // If user didn't provide a value, always set "now" to avoid NULL holds.
+                $data['hold_started_at'] = date('Y-m-d H:i:s');
+            }
+        } else {
+            $data['hold_started_at'] = null;
+        }
+    } else {
+        unset($data['hold_started_at']);
+    }
 
     if (!$tokenPercentColumnExists) {
         unset($data['booking_token_percent']);
@@ -223,15 +277,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($update) {
                 $message = "Booking updated successfully!";
-                if (($data['status'] ?? '') === 'Confirmed' && $existingStatus !== 'Confirmed') {
+                $statusEmailResult = sendPropertyStatusEmail((int)$id);
+                $message .= !empty($statusEmailResult['success']) 
+                    ? " Status email sent." 
+                    : " Status email failed: " . ($statusEmailResult['message'] ?? 'Unknown error');
+
+                if (($data['status'] ?? '') === 'Confirmed') {
                     $emailResult = sendPropertyBookingInvoiceEmail((int)$id);
                     $message .= !empty($emailResult['success'])
-                        ? " Invoice email sent successfully."
+                        ? " Invoice email sent."
                         : " Invoice email failed: " . ($emailResult['message'] ?? 'Unknown error');
                 }
                 $_SESSION['success'] = $message;
-                header("Location: property_booking_list.php");
-                exit();
+                // header("Location: property_booking_list.php");
+                // exit();
             } else {
                 $_SESSION['failure'] = "Update failed: " . $db->getLastError();
             }
@@ -248,29 +307,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($insert) {
                 $message = "Booking added successfully!";
+                $statusEmailResult = sendPropertyStatusEmail((int)$insert);
+                $message .= !empty($statusEmailResult['success']) 
+                    ? " Status email sent." 
+                    : " Status email failed: " . ($statusEmailResult['message'] ?? 'Unknown error');
+
                 if (($data['status'] ?? '') === 'Confirmed') {
                     $emailResult = sendPropertyBookingInvoiceEmail((int)$insert);
                     $message .= !empty($emailResult['success'])
-                        ? " Invoice email sent successfully."
+                        ? " Invoice email sent."
                         : " Invoice email failed: " . ($emailResult['message'] ?? 'Unknown error');
                 }
                 $_SESSION['success'] = $message;
-                header("Location: property_booking_list.php");
-                exit();
+                // header("Location: property_booking_list.php");
+                // exit();
             } else {
                 $_SESSION['failure'] = "Insert failed: " . $db->getLastError();
             }
         }
     }
 }
+
+// Recompute hold duration for current render state (after any POST merge)
+$holdDurationDisplay = '';
+if (($booking['status'] ?? '') === 'Hold' && !empty($booking['hold_started_at'])) {
+    $holdStartTs = strtotime($booking['hold_started_at']);
+    if ($holdStartTs !== false) {
+        $nowTs = time();
+        $isFuture = $holdStartTs > $nowTs;
+        $diff = abs($nowTs - $holdStartTs);
+        $days = (int)floor($diff / 86400);
+        $hours = (int)floor(($diff % 86400) / 3600);
+        $mins = (int)floor(($diff % 3600) / 60);
+        $secs = (int)($diff % 60);
+        if ($days > 0) $holdDurationDisplay = $days . 'd ' . $hours . 'h ' . $mins . 'm ' . $secs . 's';
+        elseif ($hours > 0) $holdDurationDisplay = $hours . 'h ' . $mins . 'm ' . $secs . 's';
+        elseif ($mins > 0) $holdDurationDisplay = $mins . 'm ' . $secs . 's';
+        else $holdDurationDisplay = $secs . 's';
+
+        if ($isFuture) {
+            $holdDurationDisplay = 'Starts in ' . $holdDurationDisplay;
+        }
+    }
+}
 ?>
 
 <?php include BASE_PATH . '/includes/header.php'; ?>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
 <div class="layout-page">
     <div class="content-wrapper">
         <div class="container-xxl flex-grow-1 container-p-y">
             <h4 class="py-3"><?= $edit ? 'Edit' : 'Add' ?> Property Booking</h4>
+            
+            <?php if (isset($_SESSION['success'])): ?>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <?= $_SESSION['success']; unset($_SESSION['success']); ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
+
+            <?php if (isset($_SESSION['failure'])): ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <?= $_SESSION['failure']; unset($_SESSION['failure']); ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
 
             <form method="post">
                 <!-- Property Info -->
@@ -299,11 +401,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <div class="col-md-3">
                             <label>Check-In Date</label>
-                            <input type="date" name="check_in_date" class="form-control" value="<?= $booking['check_in_date'] ?? '' ?>" required />
+                            <input type="text" name="check_in_date" class="form-control flatpickr-booking-date" value="<?= $booking['check_in_date'] ?? '' ?>" required />
                         </div>
                         <div class="col-md-3">
                             <label>Check-Out Date</label>
-                            <input type="date" name="check_out_date" class="form-control" value="<?= $booking['check_out_date'] ?? '' ?>" required />
+                            <input type="text" name="check_out_date" class="form-control flatpickr-booking-date" value="<?= $booking['check_out_date'] ?? '' ?>" required />
                         </div>
                         <div class="col-md-3">
                             <label>No. of Nights</label>
@@ -549,15 +651,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="card mb-4">
                     <div class="card-header">Booking Status</div>
                     <div class="card-body">
-                        <select name="status" class="form-select w-25">
+                        <select name="status" class="form-select w-25" id="booking_status">
                             <?php foreach (['Enquiry', 'Hold', 'Confirmed', 'Cancel'] as $status): ?>
                                 <option <?= (isset($booking['status']) && $booking['status'] === $status) ? 'selected' : '' ?>><?= $status ?></option>
                             <?php endforeach; ?>
                         </select>
+
+                        <?php
+                        $holdStartedAtLocal = '';
+                        if (!empty($booking['hold_started_at'])) {
+                            $ts = strtotime($booking['hold_started_at']);
+                            if ($ts !== false) {
+                                $holdStartedAtLocal = date('Y-m-d\\TH:i', $ts);
+                            }
+                        }
+                        ?>
+
+                        <div class="row g-3 mt-3" id="hold-timing-fields" style="<?= (($booking['status'] ?? '') === 'Hold') ? '' : 'display: none;' ?>">
+                            <div class="col-md-3">
+                                <label class="form-label">Hold Since</label>
+                                <input type="datetime-local" name="hold_started_at" class="form-control" value="<?= htmlspecialchars($holdStartedAtLocal) ?>" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Hold Duration</label>
+                                <input type="text" class="form-control" value="<?= htmlspecialchars($holdDurationDisplay) ?>" readonly />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary"><?= $edit ? 'Update' : 'Save' ?> Booking</button>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary px-4"><?= $edit ? 'Update' : 'Save' ?> Booking</button>
+                    <?php if ($edit): ?>
+                        <a href="send_booking_email.php?crm=<?= encryptId($id) ?>" class="btn btn-info px-4">
+                            <i class="fas fa-envelope me-1"></i> Send Email
+                        </a>
+                        <a href="view_property_invoice.php?crm=<?= encryptId($id) ?>" target="_blank" class="btn btn-primary px-4">
+                            <i class="fas fa-file-invoice me-1"></i> Send Invoice
+                        </a>
+                    <?php endif; ?>
+                    <a href="property_booking_list.php" class="btn btn-outline-secondary px-4">Back</a>
+                </div>
             </form>
         </div>
     </div>
@@ -568,12 +702,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     const currentBookingId = <?= json_encode($id ?: '') ?>;
     let bookingHistoryOpen = false;
 
-    // Function to disable past dates in date inputs
-    function disablePastDates() {
-        const today = new Date().toISOString().split('T')[0];
-        document.querySelector('input[name="check_in_date"]').min = today;
-        document.querySelector('input[name="check_out_date"]').min = today;
+    let holdDurationTimer = null;
+
+    function updateHoldDuration() {
+        const holdSinceEl = document.querySelector('#hold-timing-fields input[name="hold_started_at"]');
+        const durationEl = document.getElementById('hold_duration_display');
+        if (!holdSinceEl || !durationEl || !holdSinceEl.value) {
+            if (durationEl) durationEl.value = '';
+            return;
+        }
+        const start = new Date(holdSinceEl.value);
+        if (Number.isNaN(start.getTime())) {
+            durationEl.value = '';
+            return;
+        }
+        const nowMs = Date.now();
+        const isFuture = start.getTime() > nowMs;
+        const diffMs = Math.abs(nowMs - start.getTime());
+        const totalSeconds = Math.floor(diffMs / 1000);
+        const days = Math.floor(totalSeconds / 86400);
+        const hours = Math.floor((totalSeconds % 86400) / 3600);
+        const mins = Math.floor((totalSeconds % 3600) / 60);
+        const secs = totalSeconds % 60;
+
+        let txt;
+        if (days > 0) txt = `${days}d ${hours}h ${mins}m ${secs}s`;
+        else if (hours > 0) txt = `${hours}h ${mins}m ${secs}s`;
+        else if (mins > 0) txt = `${mins}m ${secs}s`;
+        else txt = `${secs}s`;
+
+        durationEl.value = isFuture ? `Starts in ${txt}` : txt;
     }
+
+    function toggleHoldTimingFields() {
+        const statusEl = document.getElementById('booking_status');
+        const wrap = document.getElementById('hold-timing-fields');
+        const holdSinceEl = document.querySelector('#hold-timing-fields input[name="hold_started_at"]');
+        if (!statusEl || !wrap) return;
+        const isHold = statusEl.value === 'Hold';
+        wrap.style.display = isHold ? '' : 'none';
+
+        if (holdDurationTimer) {
+            clearInterval(holdDurationTimer);
+            holdDurationTimer = null;
+        }
+
+        if (isHold && holdSinceEl && !holdSinceEl.value) {
+            const now = new Date();
+            const pad = (n) => String(n).padStart(2, '0');
+            const y = now.getFullYear();
+            const m = pad(now.getMonth() + 1);
+            const d = pad(now.getDate());
+            const hh = pad(now.getHours());
+            const mm = pad(now.getMinutes());
+            holdSinceEl.value = `${y}-${m}-${d}T${hh}:${mm}`;
+        }
+
+        if (isHold) {
+            updateHoldDuration();
+            holdDurationTimer = setInterval(updateHoldDuration, 1000);
+        }
+    }
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+        toggleHoldTimingFields();
+        document.getElementById('booking_status')?.addEventListener('change', toggleHoldTimingFields);
+        document.querySelector('#hold-timing-fields input[name="hold_started_at"]')?.addEventListener('change', updateHoldDuration);
+    });
 
     // Function to calculate nights between dates
     function calculateNights() {
@@ -745,36 +941,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         const discountAmount = get('discount_amount');
         const receiptAmount = get('receipt_amount');
         const token = get('booking_token');
-        const finalAmount = Math.max(0, totalAmount + serviceTotal - discountAmount - receiptAmount);
+        const finalAmount = Math.max(0, totalAmount + serviceTotal - discountAmount);
         set('total_amount', totalAmount);
         set('final_total', finalAmount);
-        set('due_amount', Math.max(0, finalAmount - token));
+        set('due_amount', Math.max(0, finalAmount - receiptAmount));
     }
 
+    let checkInPicker, checkOutPicker;
+
     document.addEventListener('DOMContentLoaded', () => {
-        // Initialize date restrictions
-        disablePastDates();
+        // Flatpickr initialization
+        const isEdit = <?= json_encode($edit) ?>;
+        const checkInVal = document.querySelector('[name="check_in_date"]').value;
+        
+        checkInPicker = flatpickr('[name="check_in_date"]', {
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "d-m-Y",
+            allowInput: true,
+            minDate: (isEdit && checkInVal) ? null : "today",
+            onChange: function(selectedDates, dateStr) {
+                if (checkOutPicker) {
+                    checkOutPicker.set("minDate", dateStr);
+                }
+                calculateNights();
+                checkRoomAvailability();
+            }
+        });
+
+        checkOutPicker = flatpickr('[name="check_out_date"]', {
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "d-m-Y",
+            allowInput: true,
+            minDate: (isEdit && checkInVal) ? null : "today",
+            onChange: function() {
+                calculateNights();
+                checkRoomAvailability();
+            }
+        });
 
         // Set up event listeners
-        document.querySelector('input[name="check_in_date"]').addEventListener('change', function() {
-            // When check-in date changes, update check-out min date
-            const checkInDate = this.value;
-            document.querySelector('input[name="check_out_date"]').min = checkInDate;
-
-            // If check-out is before new check-in, clear it
-            if (document.querySelector('input[name="check_out_date"]').value < checkInDate) {
-                document.querySelector('input[name="check_out_date"]').value = '';
-            }
-
-            calculateNights();
-            checkRoomAvailability();
-        });
-
-        document.querySelector('input[name="check_out_date"]').addEventListener('change', function() {
-            calculateNights();
-            checkRoomAvailability();
-        });
-
         document.querySelector('input[name="no_of_nights"]').addEventListener('input', function() {
             const checkInDate = document.querySelector('input[name="check_in_date"]')?.value;
             const nights = parseInt(this.value || 0, 10) || 0;
@@ -787,6 +994,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     const m = String(d.getMonth() + 1).padStart(2, '0');
                     const day = String(d.getDate()).padStart(2, '0');
                     checkOutEl.value = `${y}-${m}-${day}`;
+                    if (checkOutPicker) checkOutPicker.setDate(`${y}-${m}-${day}`);
                 }
             }
             checkRoomAvailability();
@@ -869,7 +1077,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (discEl) discEl.value = discAmt.toFixed(2);
             const receiptAmt = parseFloat(document.querySelector('[name="receipt_amount"]')?.value) || 0;
             // final total calculation
-            const finalVal = Math.max(0, totalAmt + svcTotal - discAmt - receiptAmt);
+            const finalVal = Math.max(0, totalAmt + svcTotal - discAmt);
             
             // Update Final Total Input in Rooming Section
             const finalInput = document.querySelector('input[name="final_total"]');
@@ -885,9 +1093,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const tokenPctInputEl = document.querySelector('[name="booking_token_percent"]');
             const tokenEl = parseFloat(tokenInputEl?.value) || 0;
             
-            // If user is NOT editing Due Amount, update it based on Token
             if (dueEl && document.activeElement !== dueEl) {
-                dueEl.value = Math.max(0, finalVal - tokenEl).toFixed(2);
+                dueEl.value = Math.max(0, finalVal - receiptAmt).toFixed(2);
             }
 
             if (tokenPctInputEl && document.activeElement !== tokenPctInputEl) {
@@ -1000,4 +1207,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     });
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <?php include BASE_PATH . '/includes/footer.php'; ?>
