@@ -37,6 +37,7 @@ if (!function_exists('sendPropertyStatusEmail')) {
         $mail->SMTPSecure = 'tls';
         $mail->Port = 587;
         $mail->isHTML(true);
+        $mail->CharSet = 'UTF-8';
         $mail->setFrom(GMAIL_FROM, "Ladakh DMC");
 
         if ($guestEmail) {
@@ -82,7 +83,7 @@ if (!function_exists('sendPropertyStatusEmail')) {
         $hero_img_3 = "https://r2imghtlak.mmtcdn.com/r2-mmt-htl-image/htl-imgs/202308230727264183-9061e247-281b-490a-989b-3e39248571c3.jpg";
         $hero_img_4 = BASE_URL . "/assets/img/email/IMG_8196.jpg";
         $map_img = BASE_URL . "/assets/img/email/map.png";
-        
+
         $payment_terms_url = BASE_URL . "/payment_terms.php?crm=" . urlencode(encryptId($booking['id']));
 
         $special_remarks_html = "";
@@ -103,12 +104,13 @@ if (!function_exists('sendPropertyStatusEmail')) {
                     $name = htmlspecialchars($svc['name'] ?? 'Service');
                     $price = floatval($svc['price'] ?? 0);
                     $extra_services_total += $price;
-                    $extra_services_html .= '<tr><td style="padding-bottom:10px;color:#777;">' . $name . '</td><td style="text-align:right;font-weight:700;">₹' . number_format($price, 2) . '</td></tr>';
+                    $extra_services_html .= '<tr><td style="padding-bottom:10px;color:#777;">' . $name . '</td><td style="text-align:right;font-weight:700;">&#8377;' . number_format($price, 2) . '</td></tr>';
                 }
             }
         }
         $storedServicesTotal = floatval($booking['extra_services_total'] ?? 0);
-        if ($storedServicesTotal > 0) $extra_services_total = $storedServicesTotal;
+        if ($storedServicesTotal > 0)
+            $extra_services_total = $storedServicesTotal;
 
         $base_total = floatval($booking['total_amount'] ?? 0);
         $discount_pct = floatval($booking['discount_percent'] ?? 0);
@@ -117,7 +119,7 @@ if (!function_exists('sendPropertyStatusEmail')) {
         $token_paid_calc = floatval($booking['booking_token'] ?? 0);
         $token_paid_pct = $final_total_calc > 0 ? min(100, max(0, ($token_paid_calc / $final_total_calc) * 100)) : 0;
 
-        $mail->Body = '<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>@media only screen and (max-width: 768px) { .mob-block { display: block !important; width: 100% !important; padding-right: 0 !important; padding-left: 0 !important; box-sizing: border-box !important; } .mob-inner-pad { padding: 25px 15px !important; } .mob-img { height: auto !important; max-height: 250px !important; width: 100% !important; } .mob-font-lg { font-size: 32px !important; } }</style></head><body style="margin: 0; padding: 0;"><div style="font-family: \'Outfit\', Arial, sans-serif; background-color: #FDF8F4; padding: 40px 10px; color: #1a1a1a;"><div style="max-width: 1150px; margin: auto; background-color: #ffffff; border-radius: 32px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.06); padding: 45px;"><div style="margin-bottom: 30px; padding-bottom: 10px; border-bottom: 1px solid #F0F0F0;"><p style="font-size: 18px; font-weight: 500; margin: 0 0 10px 0; color: #1a1a1a;">Dear ' . $guestName . ',</p><p style="font-size: 16px; line-height: 1.6; color: #444; margin: 0;">' . $email_greeting_body . '</p></div><table cellpadding="0" cellspacing="0" style="width: 100%; border-collapse: collapse;"><tr><td class="mob-block" style="width: 72%; vertical-align: top; padding-right: 45px;"><h1 class="mob-font-lg" style="font-size: 42px; font-weight: 700; margin: 0 0 12px 0; color: #1a1a1a;">' . $propName . '</h1><p style="color: #888; font-size: 16px; margin: 0 0 30px 0;">' . htmlspecialchars($property['address'] ?? '') . '</p>' . $special_remarks_html . '</td><td class="mob-block" style="width: 28%; vertical-align: top;"><div style="border: 1px solid #F2F2F2; border-radius: 28px; padding: 30px; background: #ffffff;"><span style="font-size: 28px; font-weight: 700; color: #1a1a1a;">₹' . number_format($final_total_calc, 2) . '</span><table style="width: 100%; font-size: 15px; border-top: 1px solid #F8F8F8; padding-top: 25px; margin-bottom: 30px;"><tr><td style="padding-bottom: 14px; color: #777;">Check In</td><td style="text-align: right; font-weight: 700;">' . date('d M Y', strtotime($booking['check_in_date'])) . '</td></tr><tr><td style="padding-bottom: 14px; color: #777;">Check Out</td><td style="text-align: right; font-weight: 700;">' . date('d M Y', strtotime($booking['check_out_date'])) . '</td></tr></table><a href="' . $payment_terms_url . '" style="display: block; background: #B19470; color: #fff; padding: 18px; border-radius: 12px; text-align: center; text-decoration: none; font-weight: 700; font-size: 18px;">Pay Now →</a></div></td></tr></table></div></div></body></html>';
+        $mail->Body = '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>@media only screen and (max-width: 768px) { .mob-block { display: block !important; width: 100% !important; padding-right: 0 !important; padding-left: 0 !important; box-sizing: border-box !important; } .mob-inner-pad { padding: 25px 15px !important; } .mob-img { height: auto !important; max-height: 250px !important; width: 100% !important; } .mob-font-lg { font-size: 32px !important; } }</style></head><body style="margin: 0; padding: 0;"><div style="font-family: \'Outfit\', Arial, sans-serif; background-color: #FDF8F4; padding: 40px 10px; color: #1a1a1a;"><div style="max-width: 1150px; margin: auto; background-color: #ffffff; border-radius: 32px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.06); padding: 45px;"><div style="margin-bottom: 30px; padding-bottom: 10px; border-bottom: 1px solid #F0F0F0;"><p style="font-size: 18px; font-weight: 500; margin: 0 0 10px 0; color: #1a1a1a;">Dear ' . $guestName . ',</p><p style="font-size: 16px; line-height: 1.6; color: #444; margin: 0;">' . $email_greeting_body . '</p></div><table cellpadding="0" cellspacing="0" style="width: 100%; border-collapse: collapse;"><tr><td class="mob-block" style="width: 72%; vertical-align: top; padding-right: 45px;"><h1 class="mob-font-lg" style="font-size: 42px; font-weight: 700; margin: 0 0 12px 0; color: #1a1a1a;">' . $propName . '</h1><p style="color: #888; font-size: 16px; margin: 0 0 30px 0;">' . htmlspecialchars($property['address'] ?? '') . '</p>' . $special_remarks_html . '</td><td class="mob-block" style="width: 28%; vertical-align: top;"><div style="border: 1px solid #F2F2F2; border-radius: 28px; padding: 30px; background: #ffffff;"><span style="font-size: 28px; font-weight: 700; color: #1a1a1a;">&#8377;' . number_format($final_total_calc, 2) . '</span><table style="width: 100%; font-size: 15px; border-top: 1px solid #F8F8F8; padding-top: 25px; margin-bottom: 30px;"><tr><td style="padding-bottom: 14px; color: #777;">Check In</td><td style="text-align: right; font-weight: 700;">' . date('d M Y', strtotime($booking['check_in_date'])) . '</td></tr><tr><td style="padding-bottom: 14px; color: #777;">Check Out</td><td style="text-align: right; font-weight: 700;">' . date('d M Y', strtotime($booking['check_out_date'])) . '</td></tr></table><a href="' . $payment_terms_url . '" style="display: block; background: #B19470; color: #fff; padding: 18px; border-radius: 12px; text-align: center; text-decoration: none; font-weight: 700; font-size: 18px;">Pay Now</a></div></td></tr></table></div></div></body></html>';
 
         try {
             $mail->send();

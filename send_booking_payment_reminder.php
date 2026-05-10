@@ -69,6 +69,7 @@ $mail->Password = GMAIL_PASSWORD;
 $mail->SMTPSecure = 'tls';
 $mail->Port = 587;
 $mail->isHTML(true);
+$mail->CharSet = 'UTF-8';
 $mail->setFrom(GMAIL_FROM, 'Ladakh DMC');
 
 if ($guestEmail) {
@@ -85,9 +86,9 @@ $mail->Body = '
         <p>Dear ' . $guestName . ',</p>
         <p>This is a friendly reminder for your pending payment at <strong>' . $hotelName . '</strong>.</p>
         <p><strong>Booking Ref:</strong> ' . $bookingRef . '<br>
-        <strong>Final Total:</strong> ₹' . number_format($finalTotal, 2) . ' (100%)<br>
-        <strong>Token Paid:</strong> ₹' . number_format($tokenPaid, 2) . ' (' . number_format($tokenPaidPct, 2) . '%)<br>
-        <strong>Pending Amount:</strong> ₹' . number_format($dueAmount, 2) . ' (' . number_format($dueAmountPct, 2) . '%)</p>
+        <strong>Final Total:</strong> &#8377;' . number_format($finalTotal, 2) . ' (100%)<br>
+        <strong>Token Paid:</strong> &#8377;' . number_format($tokenPaid, 2) . ' (' . number_format($tokenPaidPct, 2) . '%)<br>
+        <strong>Pending Amount:</strong> &#8377;' . number_format($dueAmount, 2) . ' (' . number_format($dueAmountPct, 2) . '%)</p>
         <p>Please complete the remaining payment at your earliest convenience.</p>
         <p><a href="' . $paymentUrl . '" style="display:inline-block;background:#b19470;color:#fff;padding:10px 16px;text-decoration:none;border-radius:8px;">Open Payment Details</a></p>
         <p>Regards,<br>Ladakh DMC</p>

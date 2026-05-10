@@ -44,8 +44,10 @@ function parseRange($range) {
 
 list($range_start, $range_end) = parseRange($date_range);
 
-
-// Property ID is empty by default (All Properties)
+// Default to first property when no property_id filter is set
+if ($property_id === '' && !empty($properties)) {
+    $property_id = $properties[0]['id'];
+}
 
 
 function applyPropertyBookingFilters($db, $search_string, $filter_col, $status, $guest_name, $property_id, $check_in, $check_out, $range_start, $range_end, $booking_timeline)

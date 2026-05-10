@@ -58,6 +58,7 @@ $mail->Password = GMAIL_PASSWORD;
 $mail->SMTPSecure = 'tls';
 $mail->Port = 587;
 $mail->isHTML(true);
+$mail->CharSet = 'UTF-8';
 
 $mail->setFrom(GMAIL_FROM, "Ladakh DMC");
 
@@ -153,7 +154,7 @@ if (!empty($booking['extra_services'])) {
       $extra_services_html .= '
         <tr>
           <td style="padding-bottom:10px;color:#777;">' . $name . '</td>
-          <td style="text-align:right;font-weight:700;">₹' . number_format($price, 2) . '</td>
+          <td style="text-align:right;font-weight:700;">&#8377;' . number_format($price, 2) . '</td>
         </tr>';
     }
   }
@@ -188,7 +189,7 @@ $discount_pct = floatval($booking['discount_percent'] ?? 0);
 $discount_base = floatval($booking['total_amount']);
 $discount_amt = floatval($booking['discount_amount'] ?? ($discount_base * $discount_pct / 100));
 $discount_display = $discount_pct > 0
-  ? '<tr><td style="padding-bottom:12px;color:#777;">Discount (' . $discount_pct . '%)</td><td style="text-align:right;font-weight:700;color:#e53935;">-₹' . number_format($discount_amt, 2) . '</td></tr>'
+  ? '<tr><td style="padding-bottom:12px;color:#777;">Discount (' . $discount_pct . '%)</td><td style="text-align:right;font-weight:700;color:#e53935;">-&#8377;' . number_format($discount_amt, 2) . '</td></tr>'
   : '';
 
 $discount_badge = $discount_pct > 0 ? '<div style="float: right; background: #B19470; color: #fff; padding: 5px 12px; border-radius: 25px; font-size: 12px; font-weight: 700;">' . $discount_pct . '% Off</div>' : '';
@@ -233,6 +234,7 @@ $amen_html = $build_fac($amen_items);
 $mail->Body = '<!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
   @media only screen and (max-width: 768px) {
@@ -335,7 +337,7 @@ $mail->Body = '<!DOCTYPE html>
         <td class="mob-block" style="width: 28%; vertical-align: top;">
           <div style="border: 1px solid #F2F2F2; border-radius: 28px; padding: 30px; background: #ffffff; box-shadow: 0 15px 30px rgba(0,0,0,0.03);">
             <div style="margin-bottom: 30px;">
-              <span style="font-size: 28px; font-weight: 700; color: #1a1a1a;">₹' . number_format($final_total_calc / max(1, (int)($booking['no_of_nights'] ?? 1)), 2) . '</span><span style="font-size: 15px; color: #888;">/Night</span>
+              <span style="font-size: 28px; font-weight: 700; color: #1a1a1a;">&#8377;' . number_format($final_total_calc / max(1, (int) ($booking['no_of_nights'] ?? 1)), 2) . '</span><span style="font-size: 15px; color: #888;">/Night</span>
               ' . $discount_badge . '
             </div>
 
@@ -353,8 +355,8 @@ $mail->Body = '<!DOCTYPE html>
 
             <div style="background: #FDF8F4; padding: 22px; border-radius: 16px; margin-bottom: 30px;">
               <table style="width: 100%; font-size: 15px;">
-                <tr><td style="padding-bottom: 12px; color: #777;">Booking Amount</td><td style="text-align: right; font-weight: 700;">₹' . number_format($booking['total_amount'], 2) . ' (100%)</td></tr>
-                <tr><td style="color: #777;">Token Paid</td><td style="text-align: right; font-weight: 700; color: #28a745;">₹' . number_format($token_paid_calc, 2) . ' (' . number_format($token_paid_pct, 2) . '%)</td></tr>
+                <tr><td style="padding-bottom: 12px; color: #777;">Booking Amount</td><td style="text-align: right; font-weight: 700;">&#8377;' . number_format($booking['total_amount'], 2) . ' (100%)</td></tr>
+                <tr><td style="color: #777;">Token Paid</td><td style="text-align: right; font-weight: 700; color: #28a745;">&#8377;' . number_format($token_paid_calc, 2) . ' (' . number_format($token_paid_pct, 2) . '%)</td></tr>
               </table>
             </div>
 
@@ -365,7 +367,7 @@ $mail->Body = '<!DOCTYPE html>
 
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
               <tr>
-                <td><a href="' . $payment_terms_url . '" target="_blank" style="display: block; background: #B19470; color: #fff; padding: 18px; border-radius: 12px; text-align: center; text-decoration: none; font-weight: 700; font-size: 18px; box-shadow: 0 8px 16px rgba(177, 148, 112, 0.2);">Pay Now →</a></td>
+                <td><a href="' . $payment_terms_url . '" target="_blank" style="display: block; background: #B19470; color: #fff; padding: 18px; border-radius: 12px; text-align: center; text-decoration: none; font-weight: 700; font-size: 18px; box-shadow: 0 8px 16px rgba(177, 148, 112, 0.2);">Pay Now</a></td>
               </tr>
             </table>
 
@@ -390,8 +392,7 @@ $mail->Body = '<!DOCTYPE html>
 
 if ($mail->send()) {
   $_SESSION['success'] = "Booking email sent successfully to guest and agent.";
-}
-else {
+} else {
   $_SESSION['failure'] = "Email failed: " . $mail->ErrorInfo;
 }
 

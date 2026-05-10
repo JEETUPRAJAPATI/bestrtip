@@ -78,7 +78,7 @@ $perNight = $finalTotal / $nights;
 $serviceRows = '';
 if (!empty($services)) {
     foreach ($services as $svc) {
-        $serviceRows .= '<tr><td style="padding:6px 8px;border:1px solid #e6e2dc;">' . $svc['name'] . '</td><td style="padding:6px 8px;border:1px solid #e6e2dc;text-align:right;">₹' . number_format($svc['price'], 2) . '</td></tr>';
+        $serviceRows .= '<tr><td style="padding:6px 8px;border:1px solid #e6e2dc;">' . $svc['name'] . '</td><td style="padding:6px 8px;border:1px solid #e6e2dc;text-align:right;">&#8377;' . number_format($svc['price'], 2) . '</td></tr>';
     }
 } else {
     $serviceRows = '<tr><td colspan="2" style="padding:6px 8px;border:1px solid #e6e2dc;">No addon services</td></tr>';
@@ -146,7 +146,7 @@ $html = '
                     <div style="font-size:12px; font-weight:700; color:#8f775a; margin-bottom:4px;">Booking Snapshot</div>
                     <div>Check In: ' . (!empty($booking['check_in_date']) ? date('d M Y', strtotime($booking['check_in_date'])) : '-') . '</div>
                     <div>Check Out: ' . (!empty($booking['check_out_date']) ? date('d M Y', strtotime($booking['check_out_date'])) : '-') . '</div>
-                    <div>Rate / Night: ₹' . number_format($perNight, 2) . '</div>
+                    <div>Rate / Night: &#8377;' . number_format($perNight, 2) . '</div>
                 </div>
             </td>
         </tr>
@@ -179,12 +179,12 @@ $html = '
 
     <div class="section-title">Payment Summary</div>
     <table class="summary">
-        <tr><td>Total Amount</td><td class="right">₹' . number_format($baseTotal, 2) . '</td></tr>
-        <tr><td>Addon Services Total</td><td class="right">₹' . number_format($servicesTotal, 2) . '</td></tr>
-        <tr><td>Discount (' . number_format($discountPct, 2) . '%)</td><td class="right">-₹' . number_format($discountAmount, 2) . '</td></tr>
-        <tr><td class="head">Final Total</td><td class="right head">₹' . number_format($finalTotal, 2) . '</td></tr>
-        <tr><td>Token Paid</td><td class="right">-₹' . number_format($tokenPaid, 2) . '</td></tr>
-        <tr><td class="strong">Due Amount</td><td class="right strong">₹' . number_format($dueAmount, 2) . '</td></tr>
+        <tr><td>Total Amount</td><td class="right">&#8377;' . number_format($baseTotal, 2) . '</td></tr>
+        <tr><td>Addon Services Total</td><td class="right">&#8377;' . number_format($servicesTotal, 2) . '</td></tr>
+        <tr><td>Discount (' . number_format($discountPct, 2) . '%)</td><td class="right">-&#8377;' . number_format($discountAmount, 2) . '</td></tr>
+        <tr><td class="head">Final Total</td><td class="right head">&#8377;' . number_format($finalTotal, 2) . '</td></tr>
+        <tr><td>Token Paid</td><td class="right">-&#8377;' . number_format($tokenPaid, 2) . '</td></tr>
+        <tr><td class="strong">Due Amount</td><td class="right strong">&#8377;' . number_format($dueAmount, 2) . '</td></tr>
     </table>
 
     <div class="terms-page">
@@ -228,6 +228,7 @@ $mail->Password = GMAIL_PASSWORD;
 $mail->SMTPSecure = 'tls';
 $mail->Port = 587;
 $mail->isHTML(true);
+$mail->CharSet = 'UTF-8';
 $mail->setFrom(GMAIL_FROM, 'Ladakh DMC');
 
 if ($guestEmail) {
